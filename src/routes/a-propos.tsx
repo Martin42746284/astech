@@ -1,0 +1,53 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { ShieldCheck, Clock, BadgeDollarSign, Smile } from "lucide-react";
+import rendu3d from "@/assets/rendu3d.jpg";
+import hero from "@/assets/hero.jpg";
+import chantier from "@/assets/chantier.jpg";
+import { SiteLayout, PageBanner, CtaBanner } from "@/components/site/SiteLayout";
+import { SectionHead } from "@/components/site/Cards";
+import { useI18n } from "@/lib/i18n";
+import { useSettings } from "@/lib/data";
+
+export const Route = createFileRoute("/a-propos")({
+  head: () => ({
+    meta: [
+      { title: "À propos d'ASTECH – Bureau d'études Madagascar" },
+      { name: "description", content: "Histoire, méthode de travail et engagements d'ASTECH, bureau d'études et entreprise de construction." },
+      { property: "og:title", content: "À propos d'ASTECH" },
+      { property: "og:description", content: "Qualité, délais, transparence : nos engagements." },
+    ],
+  }),
+  component: Page,
+});
+
+function Page() {
+  const { t, lang } = useI18n();
+  const s = useSettings();
+  const items = [
+    { i: ShieldCheck, l: t("quality") },
+    { i: Clock, l: t("deadlines") },
+    { i: BadgeDollarSign, l: t("transparency") },
+    { i: Smile, l: t("satisfaction") },
+  ];
+  return (
+    <SiteLayout>
+      <PageBanner title={`${t("about")} ASTECH`} crumb={t("about")} image={hero} />
+      <section className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-16 md:grid-cols-2">
+        <img src={rendu3d} alt="Rendu 3D ASTECH" loading="lazy" className="rounded-xl shadow-card" />
+        <div>
+          <SectionHead title={t("ourStory")} />
+          <p className="whitespace-pre-line leading-relaxed text-muted-foreground">{lang === "mg" ? s.about_mg : s.about_fr}</p>
+        </div>
+      </section>
+      <section className="mx-auto max-w-7xl px-4">
+        <div className="rounded-xl bg-secondary p-8 text-secondary-foreground md:p-12">
+          <h2 className="text-2xl font-extrabold">{t("commitments")}</h2>
+          <div className="mt-8 grid grid-cols-2 gap-6 md:grid-cols-4">
+            {items.map((x) => <div key={x.l}><x.i className="h-9 w-9 text-primary" /><p className="mt-3 font-semibold">{x.l}</p></div>)}
+          </div>
+        </div>
+      </section>
+      <CtaBanner image={chantier} />
+    </SiteLayout>
+  );
+}
