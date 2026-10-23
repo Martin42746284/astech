@@ -16,6 +16,12 @@ import { Route as ContactRouteImport } from './routes/contact'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as MentionsLegalesRouteImport } from './routes/mentions-legales'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as AdminDevisRouteImport } from './routes/admin.devis'
+import { Route as AdminFaqRouteImport } from './routes/admin.faq'
+import { Route as AdminParametresRouteImport } from './routes/admin.parametres'
+import { Route as AdminRealisationsRouteImport } from './routes/admin.realisations'
+import { Route as AdminServicesRouteImport } from './routes/admin.services'
+import { Route as AdminTemoignagesRouteImport } from './routes/admin.temoignages'
 import { Route as RealisationsIndexRouteImport } from './routes/realisations.index'
 import { Route as RealisationsSlugRouteImport } from './routes/realisations.$slug'
 import { Route as ServicesIndexRouteImport } from './routes/services.index'
@@ -56,6 +62,36 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminDevisRoute = AdminDevisRouteImport.update({
+  id: '/devis',
+  path: '/devis',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminFaqRoute = AdminFaqRouteImport.update({
+  id: '/faq',
+  path: '/faq',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminParametresRoute = AdminParametresRouteImport.update({
+  id: '/parametres',
+  path: '/parametres',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminRealisationsRoute = AdminRealisationsRouteImport.update({
+  id: '/realisations',
+  path: '/realisations',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminServicesRoute = AdminServicesRouteImport.update({
+  id: '/services',
+  path: '/services',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminTemoignagesRoute = AdminTemoignagesRouteImport.update({
+  id: '/temoignages',
+  path: '/temoignages',
+  getParentRoute: () => AdminRoute,
+} as any)
 const RealisationsIndexRoute = RealisationsIndexRouteImport.update({
   id: '/realisations/',
   path: '/realisations/',
@@ -84,6 +120,12 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/faq': typeof FaqRoute
   '/mentions-legales': typeof MentionsLegalesRoute
+  '/admin/devis': typeof AdminDevisRoute
+  '/admin/faq': typeof AdminFaqRoute
+  '/admin/parametres': typeof AdminParametresRoute
+  '/admin/realisations': typeof AdminRealisationsRoute
+  '/admin/services': typeof AdminServicesRoute
+  '/admin/temoignages': typeof AdminTemoignagesRoute
   '/realisations/$slug': typeof RealisationsSlugRoute
   '/services/$slug': typeof ServicesSlugRoute
   '/admin/': typeof AdminIndexRoute
@@ -96,6 +138,12 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/faq': typeof FaqRoute
   '/mentions-legales': typeof MentionsLegalesRoute
+  '/admin/devis': typeof AdminDevisRoute
+  '/admin/faq': typeof AdminFaqRoute
+  '/admin/parametres': typeof AdminParametresRoute
+  '/admin/realisations': typeof AdminRealisationsRoute
+  '/admin/services': typeof AdminServicesRoute
+  '/admin/temoignages': typeof AdminTemoignagesRoute
   '/realisations/$slug': typeof RealisationsSlugRoute
   '/services/$slug': typeof ServicesSlugRoute
   '/admin': typeof AdminIndexRoute
@@ -110,6 +158,12 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/faq': typeof FaqRoute
   '/mentions-legales': typeof MentionsLegalesRoute
+  '/admin/devis': typeof AdminDevisRoute
+  '/admin/faq': typeof AdminFaqRoute
+  '/admin/parametres': typeof AdminParametresRoute
+  '/admin/realisations': typeof AdminRealisationsRoute
+  '/admin/services': typeof AdminServicesRoute
+  '/admin/temoignages': typeof AdminTemoignagesRoute
   '/realisations/$slug': typeof RealisationsSlugRoute
   '/services/$slug': typeof ServicesSlugRoute
   '/admin/': typeof AdminIndexRoute
@@ -125,6 +179,12 @@ export interface FileRouteTypes {
     | '/contact'
     | '/faq'
     | '/mentions-legales'
+    | '/admin/devis'
+    | '/admin/faq'
+    | '/admin/parametres'
+    | '/admin/realisations'
+    | '/admin/services'
+    | '/admin/temoignages'
     | '/realisations/$slug'
     | '/services/$slug'
     | '/admin/'
@@ -137,6 +197,12 @@ export interface FileRouteTypes {
     | '/contact'
     | '/faq'
     | '/mentions-legales'
+    | '/admin/devis'
+    | '/admin/faq'
+    | '/admin/parametres'
+    | '/admin/realisations'
+    | '/admin/services'
+    | '/admin/temoignages'
     | '/realisations/$slug'
     | '/services/$slug'
     | '/admin'
@@ -150,6 +216,12 @@ export interface FileRouteTypes {
     | '/contact'
     | '/faq'
     | '/mentions-legales'
+    | '/admin/devis'
+    | '/admin/faq'
+    | '/admin/parametres'
+    | '/admin/realisations'
+    | '/admin/services'
+    | '/admin/temoignages'
     | '/realisations/$slug'
     | '/services/$slug'
     | '/admin/'
@@ -221,6 +293,48 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/devis': {
+      id: '/admin/devis'
+      path: '/devis'
+      fullPath: '/admin/devis'
+      preLoaderRoute: typeof AdminDevisRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/faq': {
+      id: '/admin/faq'
+      path: '/faq'
+      fullPath: '/admin/faq'
+      preLoaderRoute: typeof AdminFaqRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/parametres': {
+      id: '/admin/parametres'
+      path: '/parametres'
+      fullPath: '/admin/parametres'
+      preLoaderRoute: typeof AdminParametresRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/realisations': {
+      id: '/admin/realisations'
+      path: '/realisations'
+      fullPath: '/admin/realisations'
+      preLoaderRoute: typeof AdminRealisationsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/services': {
+      id: '/admin/services'
+      path: '/services'
+      fullPath: '/admin/services'
+      preLoaderRoute: typeof AdminServicesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/temoignages': {
+      id: '/admin/temoignages'
+      path: '/temoignages'
+      fullPath: '/admin/temoignages'
+      preLoaderRoute: typeof AdminTemoignagesRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/realisations/': {
       id: '/realisations/'
       path: '/realisations'
@@ -253,10 +367,22 @@ declare module '@tanstack/react-router' {
 }
 
 interface AdminRouteChildren {
+  AdminDevisRoute: typeof AdminDevisRoute
+  AdminFaqRoute: typeof AdminFaqRoute
+  AdminParametresRoute: typeof AdminParametresRoute
+  AdminRealisationsRoute: typeof AdminRealisationsRoute
+  AdminServicesRoute: typeof AdminServicesRoute
+  AdminTemoignagesRoute: typeof AdminTemoignagesRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminDevisRoute: AdminDevisRoute,
+  AdminFaqRoute: AdminFaqRoute,
+  AdminParametresRoute: AdminParametresRoute,
+  AdminRealisationsRoute: AdminRealisationsRoute,
+  AdminServicesRoute: AdminServicesRoute,
+  AdminTemoignagesRoute: AdminTemoignagesRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
 
