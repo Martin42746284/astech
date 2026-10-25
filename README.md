@@ -1,14 +1,16 @@
-# Welcome to your Lovable project
+# Astech
+
+Créer un site vitrine fonctionnel avec back office (pour le back offiche, on enlève la gestion des utilisateur car c'est déstiné pour un seul entreprise) à partir de ces maquetes là dont le cahier de charge est ci-joint (pour la base de donnée, je veux utiliser sqlite car je veux utiliser cet platforme 100% offline installé dans mon PC de bureau)
 
 This project was built with [Lovable](https://lovable.dev).
 
 ## Build with Lovable
 
-Open your project in the [Lovable editor](https://lovable.dev) and keep building.
+Continue developing this project in the [Lovable editor](https://lovable.dev/projects/782beb7f-dadc-432f-a63f-99f0070f3dd4).
 
 - **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: connect the project to GitHub and every change made in Lovable is committed straight to your repository.
-- **Full ownership**: this code is yours. Push to your repository and your changes sync back into Lovable, ready for your next prompt.
+- **Stay in sync**: every change made in Lovable is committed straight to this repository.
+- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
 
 ## Development
 
@@ -20,10 +22,3 @@ cd <repository-name>
 npm i
 npm run dev
 ```
-
-## Built with
-
-- TanStack Start
-- TypeScript
-- React
-- Tailwind CSS
