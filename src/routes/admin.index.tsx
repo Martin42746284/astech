@@ -1,21 +1,21 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Inbox, MessageCircle, Eye, Images } from "lucide-react";
-import { useSql, type Quote, type Project } from "@/lib/data";
+import { useDashboardStats, type Quote, type Project, type QuoteStatus } from "@/lib/data";
 import { StatusBadge, TYPE_LABEL } from "@/components/admin/shared";
 
 export const Route = createFileRoute("/admin/")({ component: Dashboard });
 
 function Dashboard() {
-  const n = (k: string, sql: string) => useSql<{ n: number }>(k, sql).data?.[0]?.n ?? 0;
-  const quotes = n("c-q", "SELECT COUNT(*) n FROM quotes");
-  const wa = n("c-wa", "SELECT COUNT(*) n FROM whatsapp_clicks WHERE created_at >= datetime('now','localtime','-7 days')");
-  const visits7 = n("c-v", "SELECT COUNT(*) n FROM visits WHERE created_at >= datetime('now','localtime','-7 days')");
-  const projects = n("c-p", "SELECT COUNT(*) n FROM projects");
-  const days = useSql<{ d: string; n: number }>("visits-days", "SELECT date(created_at) d, COUNT(*) n FROM visits WHERE created_at >= datetime('now','localtime','-7 days') GROUP BY d ORDER BY d").data ?? [];
-  const byType = useSql<{ project_type: string; n: number }>("by-type", "SELECT project_type, COUNT(*) n FROM quotes GROUP BY project_type ORDER BY n DESC").data ?? [];
-  const last = useSql<Quote>("last-q", "SELECT * FROM quotes ORDER BY id DESC LIMIT 5").data ?? [];
-  const recent = useSql<Project>("recent-p", "SELECT * FROM projects ORDER BY created_at DESC LIMIT 4").data ?? [];
-  const max = Math.max(1, ...days.map((d) => d.n));
+  const d = useDashboardStats().data;
+  const quotes = d?.quotes ?? 0;
+  const wa = d?.whatsapp7 ?? 0;
+  const visits7 = d?.visits7 ?? 0;
+  const projects = d?.projects ?? 0;
+  const days = d?.days ?? [];
+  const byType = d?.byType ?? [];
+  const last = (d?.lastQuotes ?? []) as unknown as Quote[];
+  const recent = (d?.recentProjects ?? []) as unknown as Pick<Project, "id" | "title_fr" | "image">[];
+  const max = Math.max(1, ...days.map((x) => x.n));
 
   const cards = [
     { l: "Demandes de devis", v: quotes, i: Inbox, c: "bg-primary text-primary-foreground" },

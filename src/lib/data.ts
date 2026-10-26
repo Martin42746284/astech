@@ -62,8 +62,8 @@ export function useAdminRows<T = Row>(table: string) {
   return useQuery({ queryKey: ["admin", table], queryFn: () => adminListRows({ data: { table } }) as Promise<T[]> });
 }
 
-export function useDashboardStats() {
-  return useQuery({ queryKey: ["admin", "dashboard"], queryFn: () => getDashboardStats(), refetchInterval: 60_000 });
+export function useDashboardStats(enabled = true) {
+  return useQuery({ queryKey: ["admin", "dashboard"], queryFn: () => getDashboardStats(), refetchInterval: 60_000, enabled });
 }
 
 /** Returns save/delete helpers for a CRUD table, invalidating caches after each write. */
