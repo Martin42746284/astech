@@ -61,6 +61,7 @@ const dict = {
   f_emailInvalid: { fr: "E-mail invalide", mg: "Mailaka diso" },
   f_consentReq: { fr: "Votre consentement est requis", mg: "Ilaina ny fanekenao" },
   f_tooSoon: { fr: "Merci de patienter une minute avant un nouvel envoi.", mg: "Miandrasa iray minitra azafady." },
+  f_submitError: { fr: "Votre demande n'a pas pu être enregistrée. Vérifiez votre connexion et réessayez.", mg: "Tsy voatahiry ny fangatahanao. Hamarino ny fifandraisana ary andramo indray." },
   f_success: { fr: "Merci ! Votre demande a bien été enregistrée. Nous vous recontactons rapidement.", mg: "Misaotra! Voaray ny fangatahanao. Hiantso anao tsy ho ela izahay." },
   type_maison: { fr: "Maison individuelle", mg: "Trano tokana" },
   type_fondation: { fr: "Fondations", mg: "Fototra" },

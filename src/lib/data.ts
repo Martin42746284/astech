@@ -1,7 +1,8 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   getSettings, listServices, getService, listProjects, getProject, listFaqs, listTestimonials,
-  adminListRows, adminSaveRow, adminDeleteRow, getDashboardStats,
+  adminListRows, adminSaveRow, adminDeleteRow, adminListQuotes, updateQuoteStatus,
+  updateQuoteNotes, deleteQuote, saveSettings, changeAdminPassword, getDashboardStats,
 } from "./data.functions";
 
 type Row = Record<string, unknown>;
@@ -62,6 +63,10 @@ export function useAdminRows<T = Row>(table: string) {
   return useQuery({ queryKey: ["admin", table], queryFn: () => adminListRows({ data: { table } }) as Promise<T[]> });
 }
 
+export function useAdminQuotes() {
+  return useQuery({ queryKey: ["admin", "quotes"], queryFn: () => adminListQuotes() as Promise<Quote[]> });
+}
+
 export function useDashboardStats(enabled = true) {
   return useQuery({ queryKey: ["admin", "dashboard"], queryFn: () => getDashboardStats(), refetchInterval: 60_000, enabled });
 }
@@ -79,6 +84,38 @@ export function useCrudMutate(table: string) {
     del: async (id: number) => {
       await adminDeleteRow({ data: { table, id } });
       await invalidate();
+    },
+  };
+}
+
+export function useAdminMutations() {
+  const qc = useQueryClient();
+  const invalidate = () => qc.invalidateQueries();
+  return {
+    saveSettings: async (entries: Record<string, string>) => {
+      const result = await saveSettings({ data: { entries } });
+      await invalidate();
+      return result;
+    },
+    changePassword: async (current: string, next: string) => {
+      const result = await changeAdminPassword({ data: { current, next } });
+      await invalidate();
+      return result;
+    },
+    updateQuoteStatus: async (id: number, status: QuoteStatus) => {
+      const result = await updateQuoteStatus({ data: { id, status } });
+      await invalidate();
+      return result;
+    },
+    updateQuoteNotes: async (id: number, notes: string) => {
+      const result = await updateQuoteNotes({ data: { id, notes } });
+      await invalidate();
+      return result;
+    },
+    deleteQuote: async (id: number) => {
+      const result = await deleteQuote({ data: { id } });
+      await invalidate();
+      return result;
     },
   };
 }

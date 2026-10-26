@@ -76,22 +76,27 @@ const s = (v: unknown, max: number) => (typeof v === "string" && v.trim() ? v.tr
 
 export const submitQuote = createServerFn({ method: "POST" })
   .inputValidator((data: {
-    name: string; phone: string; email?: string | null; project_type: string;
-    location?: string | null; budget?: string | null; surface?: string | null;
-    message: string; attachment?: string | null; attachment_name?: string | null;
+    name: string; phone: string; email?: string | null | undefined; project_type: string;
+    location?: string | null | undefined; budget?: string | null | undefined; surface?: string | null | undefined;
+    message: string; attachment?: string | null | undefined; attachment_name?: string | null | undefined; consent: boolean;
   }) => data)
   .handler(async ({ data }) => {
     const name = s(data.name, 100);
     const phone = s(data.phone, 40);
     const message = s(data.message, 2000);
-    if (!name || !phone || !message) throw new Error("Missing required fields");
+    if (!name || name.length < 2 || !phone || !/^\+?[0-9 ]{8,20}$/.test(phone) || !message || message.length < 5) {
+      throw new Error("Invalid required fields");
+    }
+    if (data.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) throw new Error("Invalid email");
     if (!PROJECT_TYPES.includes(data.project_type)) throw new Error("Invalid project type");
+    if (data.consent !== true) throw new Error("Consent is required");
+    if (data.attachment && data.attachment.length >= 6_000_000) throw new Error("Attachment is too large");
     const { neonExecute, neonUserError } = await db();
     try {
       const inserted = await neonExecute(
         "insert into quotes (name, phone, email, project_type, location, budget, surface, message, attachment, attachment_name, consent) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,1) returning id",
         [name, phone, s(data.email, 200), data.project_type, s(data.location, 200), s(data.budget, 100), s(data.surface, 100), message,
-         data.attachment && data.attachment.length < 6_000_000 ? data.attachment : null, s(data.attachment_name, 100)],
+         data.attachment ?? null, s(data.attachment_name, 100)],
       );
       return { ok: true as const, id: num(inserted.rows[0]?.id) };
     } catch (err) {
@@ -185,6 +190,14 @@ export const adminListRows = createServerFn({ method: "POST" })
     return rows as Row[];
   });
 
+export const adminListQuotes = createServerFn({ method: "GET" }).handler(async () => {
+  const { requireAdmin } = await auth();
+  await requireAdmin();
+  const { neonQuery } = await db();
+  const { rows } = await neonQuery("select * from quotes order by id desc limit 500");
+  return rows as Row[];
+});
+
 export const adminSaveRow = createServerFn({ method: "POST" })
   .inputValidator((data: { table: string; id?: number | undefined; row: Record<string, Scalar> }) => data)
   .handler(async ({ data }) => {
@@ -246,6 +259,16 @@ export const updateQuoteNotes = createServerFn({ method: "POST" })
     return { ok: true as const };
   });
 
+export const deleteQuote = createServerFn({ method: "POST" })
+  .inputValidator((data: { id: number }) => data)
+  .handler(async ({ data }) => {
+    const { requireAdmin } = await auth();
+    await requireAdmin();
+    const { neonExecute } = await db();
+    await neonExecute("delete from quotes where id = $1", [data.id]);
+    return { ok: true as const };
+  });
+
 export const saveSettings = createServerFn({ method: "POST" })
   .inputValidator((data: { entries: Record<string, string> }) => data)
   .handler(async ({ data }) => {
@@ -294,7 +317,7 @@ export const getDashboardStats = createServerFn({ method: "GET" }).handler(async
       { query: "select id, title_fr, image from projects order by created_at desc, id desc limit 4" },
     ],
     [],
-    { "Neon-Batch-Read-Only": "true" },
+    { readOnly: true },
   );
   const one = (i: number) => num(results[i]?.rows[0]?.n);
   return {

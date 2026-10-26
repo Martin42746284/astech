@@ -6,15 +6,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { useSql, useMutateSql, telLink, type Quote, type QuoteStatus } from "@/lib/data";
+import { useAdminMutations, useAdminQuotes, telLink, type Quote, type QuoteStatus } from "@/lib/data";
 import { STATUS, StatusBadge, TYPE_LABEL } from "@/components/admin/shared";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/admin/devis")({ component: Page });
 
 function Page() {
-  const rows = useSql<Quote>("quotes", "SELECT * FROM quotes ORDER BY id DESC").data ?? [];
-  const mutate = useMutateSql();
+  const quotes = useAdminQuotes();
+  const rows = quotes.data ?? [];
+  const mutations = useAdminMutations();
   const [filter, setFilter] = useState<QuoteStatus | "all">("all");
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState<Quote | null>(null);
@@ -25,14 +26,31 @@ function Page() {
     const esc = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
     const csv = "\uFEFF" + [cols.join(";"), ...list.map((r) => cols.map((c) => esc(r[c])).join(";"))].join("\n");
     const a = document.createElement("a");
-    a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+    a.href = url;
     a.download = `demandes-devis-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
+    URL.revokeObjectURL(url);
   }
 
   async function setStatus(id: number, s: QuoteStatus) {
-    await mutate("UPDATE quotes SET status=? WHERE id=?", [s, id]);
-    if (open?.id === id) setOpen({ ...open, status: s });
+    try {
+      await mutations.updateQuoteStatus(id, s);
+      if (open?.id === id) setOpen({ ...open, status: s });
+    } catch (error) {
+      toast.error(`Impossible de modifier le statut : ${(error as Error).message}`);
+    }
+  }
+
+  async function removeQuote(id: number) {
+    if (!confirm("Supprimer cette demande (droit à l'effacement) ?")) return;
+    try {
+      await mutations.deleteQuote(id);
+      if (open?.id === id) setOpen(null);
+      toast.success("Demande supprimée");
+    } catch (error) {
+      toast.error(`Impossible de supprimer la demande : ${(error as Error).message}`);
+    }
   }
 
   return (
@@ -67,8 +85,7 @@ function Page() {
             </div>
             <div className="flex justify-end gap-2">
               <Button size="icon" variant="ghost" onClick={() => setOpen(r)} aria-label="Voir"><Eye /></Button>
-              <Button size="icon" variant="ghost" className="text-destructive" aria-label="Supprimer"
-                onClick={async () => { if (confirm("Supprimer cette demande (droit à l'effacement) ?")) { await mutate("DELETE FROM quotes WHERE id=?", [r.id]); toast.success("Supprimée"); } }}><Trash2 /></Button>
+              <Button size="icon" variant="ghost" className="text-destructive" aria-label="Supprimer" onClick={() => removeQuote(r.id)}><Trash2 /></Button>
             </div>
           </article>
         ))}
@@ -91,8 +108,7 @@ function Page() {
                 </td>
                 <td className="whitespace-nowrap p-3 text-right">
                   <Button size="icon" variant="ghost" onClick={() => setOpen(r)} aria-label="Voir"><Eye /></Button>
-                  <Button size="icon" variant="ghost" className="text-destructive" aria-label="Supprimer"
-                    onClick={async () => { if (confirm("Supprimer cette demande (droit à l'effacement) ?")) { await mutate("DELETE FROM quotes WHERE id=?", [r.id]); toast.success("Supprimée"); } }}><Trash2 /></Button>
+                  <Button size="icon" variant="ghost" className="text-destructive" aria-label="Supprimer" onClick={() => removeQuote(r.id)}><Trash2 /></Button>
                 </td>
               </tr>
             ))}
@@ -117,7 +133,14 @@ function Page() {
                 <a href={open.attachment} download={open.attachment_name ?? "piece-jointe"} className="text-sm text-accent underline">Télécharger {open.attachment_name}</a>
               </div>
             )}
-            <NotesEditor q={open} onSave={async (n) => { await mutate("UPDATE quotes SET notes=? WHERE id=?", [n, open.id]); toast.success("Notes enregistrées"); }} />
+            <NotesEditor q={open} onSave={async (n) => {
+              try {
+                await mutations.updateQuoteNotes(open.id, n);
+                toast.success("Notes enregistrées");
+              } catch (error) {
+                toast.error(`Impossible d'enregistrer les notes : ${(error as Error).message}`);
+              }
+            }} />
             <div className="flex flex-wrap gap-2">
               {Object.entries(STATUS).map(([k, v]) => <Button key={k} size="sm" variant={open.status === k ? "cta" : "outline"} onClick={() => setStatus(open.id, k as QuoteStatus)}>{v.l}</Button>)}
             </div>

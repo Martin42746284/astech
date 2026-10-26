@@ -1,24 +1,35 @@
-# Astech
+# ASTECH
 
-Créer un site vitrine fonctionnel avec back office (pour le back offiche, on enlève la gestion des utilisateur car c'est déstiné pour un seul entreprise) à partir de ces maquetes là dont le cahier de charge est ci-joint (pour la base de donnée, je veux utiliser sqlite car je veux utiliser cet platforme 100% offline installé dans mon PC de bureau)
+Site vitrine bilingue français/malgache et back-office pour ASTECH. Le site utilise Neon PostgreSQL pour les données et est prévu pour un déploiement serveur sur Vercel ; il ne fonctionne pas hors ligne.
 
-This project was built with [Lovable](https://lovable.dev).
+## Développement local
 
-## Build with Lovable
-
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/782beb7f-dadc-432f-a63f-99f0070f3dd4).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
-
-## Development
-
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+Prérequis : Node.js 22.12 ou supérieur et npm.
 
 ```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
-npm run dev
+npm install
+cp .env.example .env
 ```
+
+Remplacer les valeurs d’exemple dans `.env` par l’URL Neon et un secret de session long et aléatoire avant de démarrer l’application avec `npm run dev`. Exécuter d’abord [`database/schema.sql`](./database/schema.sql) dans le SQL Editor Neon. Ne jamais publier `.env` ni exposer ces secrets avec un préfixe `VITE_`.
+
+## Configuration Neon et Vercel
+
+1. Créer une base PostgreSQL Neon et copier son URL de connexion.
+2. Exécuter [`database/schema.sql`](./database/schema.sql) dans le SQL Editor Neon pour créer les tables et le contenu initial.
+3. Définir `DATABASE_URL` avec l’URL de connexion Neon et `SESSION_SECRET` avec une chaîne aléatoire longue et privée dans les variables d’environnement du projet Vercel.
+4. Configurer ces variables pour les environnements Vercel utilisés, puis déployer.
+5. Se connecter au back-office sur `/admin` avec le mot de passe initial `astech2026`, puis le remplacer immédiatement dans **Paramètres > Sécurité**.
+
+Les données SQLite éventuellement présentes dans un ancien navigateur ne sont pas migrées automatiquement vers Neon.
+
+## Commandes
+
+```sh
+npm run dev
+npm run build
+npm test
+npm run lint
+```
+
+Les sauvegardes et restaurations complètes de la base se gèrent dans Neon. L’export CSV des demandes dans le back-office ne remplace pas une sauvegarde de la base.

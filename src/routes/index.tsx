@@ -11,21 +11,23 @@ import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n";
 import { useServices, useProjects, useTestimonials, useSettings, waLink } from "@/lib/data";
 
-const HERO_IMAGES = [hero, chantier, fondation, rendu3d];
+const HERO_IMAGES = [hero, chantier, fondation, rendu3d] as const;
 
 /** Retourne un tableau aléatoirement mélangé (Fisher-Yates). */
-function shuffle<T>(arr: T[]): T[] {
+function shuffle<T>(arr: readonly T[]): T[] {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
+    const current = a[i] as T;
+    a[i] = a[j] as T;
+    a[j] = current;
   }
   return a;
 }
 
 function HeroSlideshow() {
   // SSR-safe: pas de Math.random() à l'initialisation → même image côté serveur et client
-  const [order, setOrder] = useState<string[]>(HERO_IMAGES);
+  const [order, setOrder] = useState<string[]>([...HERO_IMAGES]);
   const [current, setCurrent] = useState(0);
   const [nextIdx, setNextIdx] = useState<number | null>(null);
   const [nextVisible, setNextVisible] = useState(false);

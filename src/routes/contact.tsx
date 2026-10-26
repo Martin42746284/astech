@@ -1,14 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
 import { Phone, Mail, MapPin, Clock, MessageCircle, CheckCircle2 } from "lucide-react";
-import chantier from "@/assets/chantier.jpg";
 import { SiteLayout, PageBanner, trackWhatsapp } from "@/components/site/SiteLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useI18n, type DictKey } from "@/lib/i18n";
-import { useSettings, useMutateSql, waLink, telLink, fileToImage, fileToDataUrl, PROJECT_TYPES } from "@/lib/data";
+import { useSettings, waLink, telLink, fileToImage, fileToDataUrl, PROJECT_TYPES } from "@/lib/data";
+import { submitQuote } from "@/lib/data.functions";
 import { quoteSchema } from "@/lib/quote-schema";
 
 export const Route = createFileRoute("/contact")({
@@ -28,7 +28,6 @@ type Errors = Partial<Record<string, string>>;
 function Page() {
   const { t, lang } = useI18n();
   const s = useSettings();
-  const mutate = useMutateSql();
   const [errors, setErrors] = useState<Errors>({});
   const [done, setDone] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -52,26 +51,27 @@ function Page() {
     }
     setErrors({});
     setBusy(true);
-    let attachment: string | null = null;
-    let attachmentName: string | null = null;
-    const file = fd.get("file") as File | null;
-    if (file && file.size) {
-      if (file.size > 3 * 1024 * 1024 || !/^(image\/|application\/pdf)/.test(file.type)) {
-        setErrors({ file: "f_required" });
-        setBusy(false);
-        return;
+    try {
+      let attachment: string | null = null;
+      let attachmentName: string | null = null;
+      const file = fd.get("file") as File | null;
+      if (file && file.size) {
+        if (file.size > 3 * 1024 * 1024 || (!file.type.startsWith("image/") && file.type !== "application/pdf")) {
+          setErrors({ file: "f_required" });
+          return;
+        }
+        attachment = file.type.startsWith("image/") ? await fileToImage(file) : await fileToDataUrl(file);
+        attachmentName = file.name.replace(/[^\w.\- ]/g, "_").slice(0, 100);
       }
-      attachment = file.type.startsWith("image/") ? await fileToImage(file) : await fileToDataUrl(file);
-      attachmentName = file.name.replace(/[^\w.\- ]/g, "_").slice(0, 100);
+      await submitQuote({ data: { ...parsed.data, attachment, attachment_name: attachmentName } });
+      localStorage.setItem("astech-last-quote", String(Date.now()));
+      setDone(true);
+    } catch (error) {
+      console.error("Quote submission failed", error);
+      setErrors({ form: "f_submitError" });
+    } finally {
+      setBusy(false);
     }
-    const d = parsed.data;
-    await mutate(
-      "INSERT INTO quotes (name, phone, email, project_type, location, budget, surface, message, attachment, attachment_name, consent) VALUES (?,?,?,?,?,?,?,?,?,?,1)",
-      [d.name, d.phone, d.email || null, d.project_type, d.location || null, d.budget || null, d.surface || null, d.message, attachment, attachmentName],
-    );
-    localStorage.setItem("astech-last-quote", String(Date.now()));
-    setBusy(false);
-    setDone(true);
   }
 
   const err = (k: string) => errors[k] && <p className="mt-1 text-xs text-destructive" role="alert">{t(errors[k] as DictKey)}</p>;
