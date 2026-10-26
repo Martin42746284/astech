@@ -5,7 +5,7 @@ import { SiteLayout, PageBanner } from "@/components/site/SiteLayout";
 import { ServiceIcon } from "@/components/site/ServiceIcon";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n";
-import { useSql, type Service } from "@/lib/data";
+import { useService } from "@/lib/data";
 
 export const Route = createFileRoute("/services/$slug")({
   head: () => ({
@@ -22,8 +22,8 @@ export const Route = createFileRoute("/services/$slug")({
 function Page() {
   const { slug } = Route.useParams();
   const { t, pick } = useI18n();
-  const q = useSql<Service>("service", "SELECT * FROM services WHERE slug=?", [slug]);
-  const s = q.data?.[0];
+  const q = useService(slug);
+  const s = q.data;
   if (q.isSuccess && !s)
     return <SiteLayout><div className="py-32 text-center"><h1 className="text-2xl font-bold">{t("notFound")}</h1><Link to="/services" className="text-accent">{t("ourServices")}</Link></div></SiteLayout>;
   if (!s) return <SiteLayout><div className="py-32" /></SiteLayout>;

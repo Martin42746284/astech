@@ -33,27 +33,27 @@ export function useSettings() {
 }
 
 export function useServices() {
-  return useQuery({ queryKey: ["services"], queryFn: () => listServices(), staleTime: 30_000 });
+  return useQuery({ queryKey: ["services"], queryFn: () => listServices() as Promise<Service[]>, staleTime: 30_000 });
 }
 
 export function useService(slug: string) {
-  return useQuery({ queryKey: ["service", slug], queryFn: () => getService({ data: { slug } }), staleTime: 30_000 });
+  return useQuery({ queryKey: ["service", slug], queryFn: () => getService({ data: { slug } }) as Promise<Service | null>, staleTime: 30_000 });
 }
 
 export function useProjects(featured = false) {
-  return useQuery({ queryKey: ["projects", featured], queryFn: () => listProjects({ data: { featured } }), staleTime: 30_000 });
+  return useQuery({ queryKey: ["projects", featured], queryFn: () => listProjects({ data: { featured } }) as Promise<Project[]>, staleTime: 30_000 });
 }
 
 export function useProject(slug: string) {
-  return useQuery({ queryKey: ["project", slug], queryFn: () => getProject({ data: { slug } }), staleTime: 30_000 });
+  return useQuery({ queryKey: ["project", slug], queryFn: () => getProject({ data: { slug } }) as Promise<Project | null>, staleTime: 30_000 });
 }
 
 export function useFaqs() {
-  return useQuery({ queryKey: ["faqs"], queryFn: () => listFaqs(), staleTime: 30_000 });
+  return useQuery({ queryKey: ["faqs"], queryFn: () => listFaqs() as Promise<Faq[]>, staleTime: 30_000 });
 }
 
 export function useTestimonials() {
-  return useQuery({ queryKey: ["testimonials"], queryFn: () => listTestimonials(), staleTime: 30_000 });
+  return useQuery({ queryKey: ["testimonials"], queryFn: () => listTestimonials() as Promise<Testimonial[]>, staleTime: 30_000 });
 }
 
 // ---------- Admin hooks (session-gated on the server) ----------

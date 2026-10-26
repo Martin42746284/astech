@@ -6,7 +6,7 @@ import { SiteLayout, CtaBanner, trackWhatsapp } from "@/components/site/SiteLayo
 import { ServiceCard, ProjectCard, SectionHead } from "@/components/site/Cards";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n";
-import { useSql, useSettings, waLink, type Project, type Service, type Testimonial } from "@/lib/data";
+import { useServices, useProjects, useTestimonials, useSettings, waLink } from "@/lib/data";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -23,9 +23,9 @@ export const Route = createFileRoute("/")({
 function Index() {
   const { t, pick } = useI18n();
   const s = useSettings();
-  const services = useSql<Service>("services-home", "SELECT * FROM services WHERE active=1 ORDER BY ord");
-  const projects = useSql<Project>("projects-home", "SELECT * FROM projects WHERE featured=1 ORDER BY created_at DESC LIMIT 4");
-  const testi = useSql<Testimonial>("testi", "SELECT * FROM testimonials WHERE active=1");
+  const services = useServices();
+  const projects = useProjects(true);
+  const testi = useTestimonials();
 
   return (
     <SiteLayout>
