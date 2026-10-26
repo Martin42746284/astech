@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 
-type Row = Record<string, unknown>;
+type Json = string | number | boolean | null | Json[] | { [k: string]: Json };
+type Row = Record<string, Json>;
 type Scalar = string | number | null;
 
 async function db() {
@@ -11,11 +12,6 @@ async function auth() {
 }
 
 const num = (v: unknown) => Number(v ?? 0);
-
-function fail(err: unknown): never {
-  console.error(err);
-  throw err;
-}
 
 // ---------- Public reads ----------
 
@@ -30,7 +26,7 @@ export const getSettings = createServerFn({ method: "GET" }).handler(async () =>
 export const listServices = createServerFn({ method: "GET" }).handler(async () => {
   const { neonQuery } = await db();
   const { rows } = await neonQuery("select * from services where active = 1 order by ord, id limit 50");
-  return rows;
+  return rows as Row[];
 });
 
 export const getService = createServerFn({ method: "GET" })
@@ -38,7 +34,7 @@ export const getService = createServerFn({ method: "GET" })
   .handler(async ({ data }) => {
     const { neonQuery } = await db();
     const { rows } = await neonQuery("select * from services where slug = $1 limit 1", [data.slug]);
-    return rows[0] ?? null;
+    return (rows[0] ?? null) as Row | null;
   });
 
 export const listProjects = createServerFn({ method: "GET" })
@@ -47,10 +43,10 @@ export const listProjects = createServerFn({ method: "GET" })
     const { neonQuery } = await db();
     if (data.featured) {
       const { rows } = await neonQuery("select * from projects where featured = 1 order by created_at desc, id desc limit 4");
-      return rows;
+      return rows as Row[];
     }
     const { rows } = await neonQuery("select * from projects order by created_at desc, id desc limit 200");
-    return rows;
+    return rows as Row[];
   });
 
 export const getProject = createServerFn({ method: "GET" })
@@ -58,19 +54,19 @@ export const getProject = createServerFn({ method: "GET" })
   .handler(async ({ data }) => {
     const { neonQuery } = await db();
     const { rows } = await neonQuery("select * from projects where slug = $1 limit 1", [data.slug]);
-    return rows[0] ?? null;
+    return (rows[0] ?? null) as Row | null;
   });
 
 export const listFaqs = createServerFn({ method: "GET" }).handler(async () => {
   const { neonQuery } = await db();
   const { rows } = await neonQuery("select * from faqs order by ord, id limit 100");
-  return rows;
+  return rows as Row[];
 });
 
 export const listTestimonials = createServerFn({ method: "GET" }).handler(async () => {
   const { neonQuery } = await db();
   const { rows } = await neonQuery("select * from testimonials where active = 1 order by id limit 50");
-  return rows;
+  return rows as Row[];
 });
 
 // ---------- Public writes ----------
@@ -186,11 +182,11 @@ export const adminListRows = createServerFn({ method: "POST" })
     if (!t) throw new Error("Unknown table");
     const { neonQuery } = await db();
     const { rows } = await neonQuery(`select * from "${data.table}" order by ${t.orderBy} limit 500`);
-    return rows;
+    return rows as Row[];
   });
 
 export const adminSaveRow = createServerFn({ method: "POST" })
-  .inputValidator((data: { table: string; id?: number; row: Record<string, Scalar> }) => data)
+  .inputValidator((data: { table: string; id?: number | undefined; row: Record<string, Scalar> }) => data)
   .handler(async ({ data }) => {
     const { requireAdmin } = await auth();
     await requireAdmin();
@@ -300,16 +296,16 @@ export const getDashboardStats = createServerFn({ method: "GET" }).handler(async
     [],
     { "Neon-Batch-Read-Only": "true" },
   );
-  const one = (i: number) => num(results[i].rows[0]?.n);
+  const one = (i: number) => num(results[i]?.rows[0]?.n);
   return {
     quotes: one(0),
     whatsapp7: one(1),
     visits7: one(2),
     projects: one(3),
     newQuotes: one(4),
-    days: results[5].rows.map((r) => ({ d: String(r.d), n: num(r.n) })),
-    byType: results[6].rows.map((r) => ({ project_type: String(r.project_type), n: num(r.n) })),
-    lastQuotes: results[7].rows,
-    recentProjects: results[8].rows,
+    days: (results[5]?.rows ?? []).map((r) => ({ d: String(r.d), n: num(r.n) })),
+    byType: (results[6]?.rows ?? []).map((r) => ({ project_type: String(r.project_type), n: num(r.n) })),
+    lastQuotes: (results[7]?.rows ?? []) as Row[],
+    recentProjects: (results[8]?.rows ?? []) as Row[],
   };
 });
