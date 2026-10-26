@@ -85,7 +85,7 @@ function BannerSlideshow({ className }: { className?: string }) {
 import { Logo } from "./Logo";
 import { useI18n, type DictKey } from "@/lib/i18n";
 import { useSettings, waLink, telLink } from "@/lib/data";
-import { run } from "@/lib/db";
+import { trackVisit, trackWhatsapp as trackWhatsappFn } from "@/lib/data.functions";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -115,7 +115,7 @@ function LangSwitch({ className }: { className?: string }) {
 }
 
 export function trackWhatsapp() {
-  void run("INSERT INTO whatsapp_clicks DEFAULT VALUES").catch(() => {});
+  void trackWhatsappFn().catch(() => {});
 }
 
 export function SiteLayout({ children }: { children: ReactNode }) {
@@ -126,7 +126,7 @@ export function SiteLayout({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     setOpen(false);
-    void run("INSERT INTO visits (path) VALUES (?)", [path]).catch(() => {});
+    void trackVisit({ data: { path } }).catch(() => {});
   }, [path]);
 
   return (

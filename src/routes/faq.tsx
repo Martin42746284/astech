@@ -3,7 +3,7 @@ import { SiteLayout, PageBanner, CtaBanner } from "@/components/site/SiteLayout"
 import { SectionHead } from "@/components/site/Cards";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useI18n } from "@/lib/i18n";
-import { useSql, type Faq } from "@/lib/data";
+import { useFaqs } from "@/lib/data";
 
 export const Route = createFileRoute("/faq")({
   head: () => ({
@@ -19,7 +19,7 @@ export const Route = createFileRoute("/faq")({
 
 function Page() {
   const { t, pick } = useI18n();
-  const q = useSql<Faq>("faqs", "SELECT * FROM faqs ORDER BY ord");
+  const q = useFaqs();
   return (
     <SiteLayout>
       <PageBanner title="FAQ" crumb="FAQ" />

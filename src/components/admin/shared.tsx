@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { Pencil, Trash2, Plus } from "lucide-react";
 import { toast } from "sonner";
-import type { SqlValue } from "sql.js";
+type Scalar = string | number | null;
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { useSql, useMutateSql, fileToImage, slugify, type QuoteStatus } from "@/lib/data";
+import { useAdminRows, useCrudMutate, fileToImage, slugify, type QuoteStatus } from "@/lib/data";
 import { cn } from "@/lib/utils";
 
 export const TYPE_LABEL: Record<string, string> = {
@@ -30,26 +30,24 @@ export type Field = {
   options?: { v: string; l: string }[]; full?: boolean; required?: boolean; hint?: string;
 };
 
-type AnyRow = Record<string, SqlValue> & { id: number };
+type AnyRow = Record<string, Scalar> & { id: number };
 
-export function CrudPage({ title, table, orderBy, fields, columns, slugFrom }: {
+export function CrudPage({ title, table, fields, columns, slugFrom }: {
   title: string; table: string; orderBy: string; fields: Field[];
   columns: { label: string; render: (r: AnyRow) => React.ReactNode }[]; slugFrom?: string;
 }) {
-  const rows = useSql<AnyRow>(`crud-${table}`, `SELECT * FROM ${table} ORDER BY ${orderBy}`).data ?? [];
-  const mutate = useMutateSql();
+  const rows = useAdminRows<AnyRow>(table).data ?? [];
+  const { save: saveRow, del: delRow } = useCrudMutate(table);
   const [edit, setEdit] = useState<Partial<AnyRow> | null>(null);
 
   async function save() {
     if (!edit) return;
     for (const f of fields) if (f.required && !edit[f.name]) return toast.error(`« ${f.label} » est obligatoire`);
-    const data: Record<string, SqlValue> = {};
-    fields.forEach((f) => (data[f.name] = (edit[f.name] ?? (f.type === "checkbox" ? 0 : null)) as SqlValue));
+    const data: Record<string, Scalar> = {};
+    fields.forEach((f) => (data[f.name] = (edit[f.name] ?? (f.type === "checkbox" ? 0 : null)) as Scalar));
     if (slugFrom) data.slug = (edit.slug as string) || slugify(String(edit[slugFrom] ?? "")) + (edit.id ? "" : "-" + Date.now().toString(36));
-    const keys = Object.keys(data);
     try {
-      if (edit.id) await mutate(`UPDATE ${table} SET ${keys.map((k) => `${k}=?`).join(",")} WHERE id=?`, [...keys.map((k) => data[k]!), edit.id]);
-      else await mutate(`INSERT INTO ${table} (${keys.join(",")}) VALUES (${keys.map(() => "?").join(",")})`, keys.map((k) => data[k]!));
+      await saveRow(data, edit.id);
       toast.success("Enregistré");
       setEdit(null);
     } catch (e) {
@@ -58,7 +56,7 @@ export function CrudPage({ title, table, orderBy, fields, columns, slugFrom }: {
   }
   async function del(id: number) {
     if (!confirm("Supprimer définitivement cet élément ?")) return;
-    await mutate(`DELETE FROM ${table} WHERE id=?`, [id]);
+    await delRow(id);
     toast.success("Supprimé");
   }
 
@@ -123,7 +121,7 @@ export function CrudPage({ title, table, orderBy, fields, columns, slugFrom }: {
   );
 }
 
-function FieldInput({ f, value, onChange }: { f: Field; value: SqlValue | undefined; onChange: (v: SqlValue) => void }) {
+function FieldInput({ f, value, onChange }: { f: Field; value: Scalar | undefined; onChange: (v: Scalar) => void }) {
   const full = f.full || f.type === "textarea" || f.type === "image";
   const v = value == null ? "" : String(value);
   return (

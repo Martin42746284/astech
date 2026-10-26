@@ -3,7 +3,7 @@ import { useState } from "react";
 import { SiteLayout, PageBanner, CtaBanner } from "@/components/site/SiteLayout";
 import { ProjectCard, SectionHead } from "@/components/site/Cards";
 import { useI18n, type DictKey } from "@/lib/i18n";
-import { useSql, CATEGORIES, type Project } from "@/lib/data";
+import { useProjects, CATEGORIES } from "@/lib/data";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/realisations/")({
@@ -21,7 +21,7 @@ export const Route = createFileRoute("/realisations/")({
 function Page() {
   const { t } = useI18n();
   const [cat, setCat] = useState<string>("all");
-  const q = useSql<Project>("projects", "SELECT * FROM projects ORDER BY created_at DESC");
+  const q = useProjects();
   const list = q.data?.filter((p) => cat === "all" || p.category === cat) ?? [];
   return (
     <SiteLayout>

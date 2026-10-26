@@ -4,7 +4,7 @@ import { MapPin, Calendar, X } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Button } from "@/components/ui/button";
 import { useI18n, type DictKey } from "@/lib/i18n";
-import { useSql, type Project } from "@/lib/data";
+import { useProject } from "@/lib/data";
 
 export const Route = createFileRoute("/realisations/$slug")({
   head: () => ({
@@ -22,8 +22,8 @@ function Page() {
   const { slug } = Route.useParams();
   const { t, pick } = useI18n();
   const [zoom, setZoom] = useState(false);
-  const q = useSql<Project>("project", "SELECT * FROM projects WHERE slug=?", [slug]);
-  const p = q.data?.[0];
+  const q = useProject(slug);
+  const p = q.data;
   if (q.isSuccess && !p) return <SiteLayout><div className="py-32 text-center text-2xl font-bold">{t("notFound")}</div></SiteLayout>;
   if (!p) return <SiteLayout><div className="py-32" /></SiteLayout>;
   return (

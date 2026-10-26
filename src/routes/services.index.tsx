@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { SiteLayout, PageBanner, CtaBanner } from "@/components/site/SiteLayout";
 import { ServiceCard, SectionHead } from "@/components/site/Cards";
 import { useI18n } from "@/lib/i18n";
-import { useSql, type Service } from "@/lib/data";
+import { useServices } from "@/lib/data";
 
 export const Route = createFileRoute("/services/")({
   head: () => ({
@@ -18,7 +18,7 @@ export const Route = createFileRoute("/services/")({
 
 function Page() {
   const { t } = useI18n();
-  const q = useSql<Service>("services", "SELECT * FROM services WHERE active=1 ORDER BY ord");
+  const q = useServices();
   return (
     <SiteLayout>
       <PageBanner title={t("ourServices")} crumb={t("services")} />
