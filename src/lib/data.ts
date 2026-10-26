@@ -1,6 +1,10 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import type { SqlValue } from "sql.js";
-import { all, run, type Row } from "./db";
+import {
+  getSettings, listServices, getService, listProjects, getProject, listFaqs, listTestimonials,
+  adminListRows, adminSaveRow, adminDeleteRow, getDashboardStats,
+} from "./data.functions";
+
+type Row = Record<string, unknown>;
 
 export type Service = {
   id: number; slug: string; title_fr: string; title_mg: string; summary_fr: string; summary_mg: string;
@@ -23,23 +27,59 @@ export type QuoteStatus = "new" | "in_progress" | "done" | "archived";
 export const CATEGORIES = ["maison", "fondation", "rendu-3d", "chantier"] as const;
 export const PROJECT_TYPES = ["maison", "fondation", "rendu-3d", "chantier", "permis", "etude", "autre"] as const;
 
-export function useSql<T = Row>(key: string, sql: string, params: SqlValue[] = []) {
-  return useQuery({ queryKey: ["sql", key, ...params], queryFn: () => all<T>(sql, params) });
-}
-
 export function useSettings() {
-  const q = useSql<{ key: string; value: string }>("settings", "SELECT key, value FROM settings");
-  const map: Record<string, string> = {};
-  q.data?.forEach((r) => (map[r.key] = r.value));
-  return map;
+  const q = useQuery({ queryKey: ["settings"], queryFn: () => getSettings(), staleTime: 30_000 });
+  return q.data ?? {};
 }
 
-export function useMutateSql() {
+export function useServices() {
+  return useQuery({ queryKey: ["services"], queryFn: () => listServices(), staleTime: 30_000 });
+}
+
+export function useService(slug: string) {
+  return useQuery({ queryKey: ["service", slug], queryFn: () => getService({ data: { slug } }), staleTime: 30_000 });
+}
+
+export function useProjects(featured = false) {
+  return useQuery({ queryKey: ["projects", featured], queryFn: () => listProjects({ data: { featured } }), staleTime: 30_000 });
+}
+
+export function useProject(slug: string) {
+  return useQuery({ queryKey: ["project", slug], queryFn: () => getProject({ data: { slug } }), staleTime: 30_000 });
+}
+
+export function useFaqs() {
+  return useQuery({ queryKey: ["faqs"], queryFn: () => listFaqs(), staleTime: 30_000 });
+}
+
+export function useTestimonials() {
+  return useQuery({ queryKey: ["testimonials"], queryFn: () => listTestimonials(), staleTime: 30_000 });
+}
+
+// ---------- Admin hooks (session-gated on the server) ----------
+
+export function useAdminRows<T = Row>(table: string) {
+  return useQuery({ queryKey: ["admin", table], queryFn: () => adminListRows({ data: { table } }) as Promise<T[]> });
+}
+
+export function useDashboardStats() {
+  return useQuery({ queryKey: ["admin", "dashboard"], queryFn: () => getDashboardStats(), refetchInterval: 60_000 });
+}
+
+/** Returns save/delete helpers for a CRUD table, invalidating caches after each write. */
+export function useCrudMutate(table: string) {
   const qc = useQueryClient();
-  return async (sql: string, params: SqlValue[] = []) => {
-    const id = await run(sql, params);
-    await qc.invalidateQueries({ queryKey: ["sql"] });
-    return id;
+  const invalidate = () => qc.invalidateQueries();
+  return {
+    save: async (row: Record<string, string | number | null>, id?: number) => {
+      const r = await adminSaveRow({ data: { table, id, row } });
+      await invalidate();
+      return r;
+    },
+    del: async (id: number) => {
+      await adminDeleteRow({ data: { table, id } });
+      await invalidate();
+    },
   };
 }
 
@@ -51,7 +91,7 @@ export function telLink(p?: string) {
   return `tel:${(p || "").replace(/\s/g, "")}`;
 }
 
-/** Resize an image file to WebP data URL (keeps the offline DB small). */
+/** Resize an image file to WebP data URL (keeps the DB small). */
 export function fileToImage(file: File, max = 1600): Promise<string> {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -79,5 +119,5 @@ export function fileToDataUrl(file: File): Promise<string> {
 }
 
 export function slugify(s: string) {
-  return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+  return s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 }
