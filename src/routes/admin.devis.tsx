@@ -47,9 +47,34 @@ function Page() {
             {s === "all" ? "Toutes" : STATUS[s].l}
           </button>
         ))}
-        <div className="relative ml-auto"><Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" /><Input className="pl-8" placeholder="Rechercher…" value={search} onChange={(e) => setSearch(e.target.value)} /></div>
+        <div className="relative w-full sm:ml-auto sm:w-auto"><Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" /><Input className="w-full pl-8 sm:w-56" placeholder="Rechercher…" value={search} onChange={(e) => setSearch(e.target.value)} /></div>
       </div>
-      <div className="overflow-x-auto rounded-xl bg-card shadow-card">
+      <div className="space-y-3 lg:hidden">
+        {list.map((r) => (
+          <article key={r.id} className="space-y-3 rounded-xl bg-card p-4 shadow-card">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="break-words font-semibold">{r.name}</p>
+                <a href={telLink(r.phone)} className="text-sm text-accent">{r.phone}</a>
+              </div>
+              <select aria-label={`Statut de ${r.name}`} value={r.status} onChange={(e) => setStatus(r.id, e.target.value as QuoteStatus)} className="max-w-32 rounded border bg-transparent px-2 py-1 text-xs">
+                {Object.entries(STATUS).map(([k, v]) => <option key={k} value={k}>{v.l}</option>)}
+              </select>
+            </div>
+            <div className="flex flex-wrap justify-between gap-2 border-t pt-3 text-sm">
+              <span className="text-muted-foreground">{TYPE_LABEL[r.project_type]}</span>
+              <span className="text-muted-foreground">{r.created_at}</span>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button size="icon" variant="ghost" onClick={() => setOpen(r)} aria-label="Voir"><Eye /></Button>
+              <Button size="icon" variant="ghost" className="text-destructive" aria-label="Supprimer"
+                onClick={async () => { if (confirm("Supprimer cette demande (droit à l'effacement) ?")) { await mutate("DELETE FROM quotes WHERE id=?", [r.id]); toast.success("Supprimée"); } }}><Trash2 /></Button>
+            </div>
+          </article>
+        ))}
+        {list.length === 0 && <p className="rounded-xl bg-card p-6 text-center text-sm text-muted-foreground shadow-card">Aucune demande.</p>}
+      </div>
+      <div className="hidden overflow-x-auto rounded-xl bg-card shadow-card lg:block">
         <table className="w-full text-sm">
           <thead className="border-b text-left text-muted-foreground"><tr>{["Client", "Téléphone", "Type de projet", "Date", "Statut", ""].map((h) => <th key={h} className="p-3">{h}</th>)}</tr></thead>
           <tbody className="divide-y">

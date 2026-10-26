@@ -60,7 +60,7 @@ function Page() {
     <div className="max-w-3xl">
       <h1 className="mb-6 text-2xl font-extrabold text-secondary">Paramètres</h1>
       <Tabs defaultValue="Entreprise">
-        <TabsList>{GROUPS.map((g) => <TabsTrigger key={g.tab} value={g.tab}>{g.tab}</TabsTrigger>)}<TabsTrigger value="sec">Sécurité</TabsTrigger><TabsTrigger value="db">Sauvegarde</TabsTrigger></TabsList>
+        <TabsList className="max-w-full justify-start overflow-x-auto">{GROUPS.map((g) => <TabsTrigger key={g.tab} value={g.tab}>{g.tab}</TabsTrigger>)}<TabsTrigger value="sec">Sécurité</TabsTrigger><TabsTrigger value="db">Sauvegarde</TabsTrigger></TabsList>
         {GROUPS.map((g) => (
           <TabsContent key={g.tab} value={g.tab} className="rounded-xl bg-card p-6 shadow-card">
             <div className="grid gap-4 sm:grid-cols-2">

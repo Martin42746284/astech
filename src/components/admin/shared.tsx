@@ -64,11 +64,28 @@ export function CrudPage({ title, table, orderBy, fields, columns, slugFrom }: {
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-extrabold text-secondary">{title}</h1>
         <Button variant="cta" onClick={() => setEdit({})}><Plus /> Ajouter</Button>
       </div>
-      <div className="overflow-x-auto rounded-xl bg-card shadow-card">
+      <div className="space-y-3 lg:hidden">
+        {rows.map((r) => (
+          <article key={r.id} className="space-y-3 rounded-xl bg-card p-4 shadow-card">
+            {columns.map((c) => (
+              <div key={c.label} className="min-w-0">
+                <p className="text-xs font-semibold text-muted-foreground">{c.label}</p>
+                <div className="break-words text-sm">{c.render(r)}</div>
+              </div>
+            ))}
+            <div className="flex justify-end gap-2 border-t pt-2">
+              <Button size="icon" variant="ghost" onClick={() => setEdit(r)} aria-label="Modifier"><Pencil /></Button>
+              <Button size="icon" variant="ghost" onClick={() => del(r.id)} aria-label="Supprimer" className="text-destructive"><Trash2 /></Button>
+            </div>
+          </article>
+        ))}
+        {rows.length === 0 && <p className="rounded-xl bg-card p-6 text-center text-sm text-muted-foreground shadow-card">Aucun élément.</p>}
+      </div>
+      <div className="hidden overflow-x-auto rounded-xl bg-card shadow-card lg:block">
         <table className="w-full text-sm">
           <thead className="border-b text-left text-muted-foreground">
             <tr>{columns.map((c) => <th key={c.label} className="p-3 font-semibold">{c.label}</th>)}<th className="p-3 text-right">Actions</th></tr>
@@ -120,7 +137,7 @@ function FieldInput({ f, value, onChange }: { f: Field; value: SqlValue | undefi
         : f.type === "checkbox" ? (
           <label className="flex items-center gap-2 pt-6 text-sm"><input type="checkbox" checked={!!value} onChange={(e) => onChange(e.target.checked ? 1 : 0)} className="accent-primary" />{f.label}</label>)
         : f.type === "image" ? (
-          <div className="flex items-center gap-4">
+          <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
             {v && <img src={v} alt="" className="h-20 w-28 rounded object-cover" />}
             <Input type="file" accept="image/*" onChange={async (e) => { const file = e.target.files?.[0]; if (file) onChange(await fileToImage(file)); }} />
           </div>)

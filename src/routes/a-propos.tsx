@@ -1,8 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ShieldCheck, Clock, BadgeDollarSign, Smile } from "lucide-react";
 import rendu3d from "@/assets/rendu3d.jpg";
-import hero from "@/assets/hero.jpg";
-import chantier from "@/assets/chantier.jpg";
 import { SiteLayout, PageBanner, CtaBanner } from "@/components/site/SiteLayout";
 import { SectionHead } from "@/components/site/Cards";
 import { useI18n } from "@/lib/i18n";
@@ -31,7 +29,7 @@ function Page() {
   ];
   return (
     <SiteLayout>
-      <PageBanner title={`${t("about")} ASTECH`} crumb={t("about")} image={hero} />
+      <PageBanner title={`${t("about")} ASTECH`} crumb={t("about")} />
       <section className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-16 md:grid-cols-2">
         <img src={rendu3d} alt="Rendu 3D ASTECH" loading="lazy" className="rounded-xl shadow-card" />
         <div>
@@ -47,7 +45,7 @@ function Page() {
           </div>
         </div>
       </section>
-      <CtaBanner image={chantier} />
+      <CtaBanner />
     </SiteLayout>
   );
 }

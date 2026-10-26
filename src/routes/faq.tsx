@@ -1,6 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import fondation from "@/assets/fondation.jpg";
-import chantier from "@/assets/chantier.jpg";
 import { SiteLayout, PageBanner, CtaBanner } from "@/components/site/SiteLayout";
 import { SectionHead } from "@/components/site/Cards";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -24,7 +22,7 @@ function Page() {
   const q = useSql<Faq>("faqs", "SELECT * FROM faqs ORDER BY ord");
   return (
     <SiteLayout>
-      <PageBanner title="FAQ" crumb="FAQ" image={fondation} />
+      <PageBanner title="FAQ" crumb="FAQ" />
       <section className="mx-auto max-w-3xl px-4 py-16">
         <SectionHead title={t("faqTitle")} sub={t("faqSub")} />
         <Accordion type="single" collapsible className="space-y-3">
@@ -36,7 +34,7 @@ function Page() {
           ))}
         </Accordion>
       </section>
-      <CtaBanner image={chantier} />
+      <CtaBanner />
     </SiteLayout>
   );
 }

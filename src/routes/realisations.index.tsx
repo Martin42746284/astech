@@ -1,7 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import hero from "@/assets/hero.jpg";
-import chantier from "@/assets/chantier.jpg";
 import { SiteLayout, PageBanner, CtaBanner } from "@/components/site/SiteLayout";
 import { ProjectCard, SectionHead } from "@/components/site/Cards";
 import { useI18n, type DictKey } from "@/lib/i18n";
@@ -27,7 +25,7 @@ function Page() {
   const list = q.data?.filter((p) => cat === "all" || p.category === cat) ?? [];
   return (
     <SiteLayout>
-      <PageBanner title={t("ourProjects")} crumb={t("projects")} image={hero} />
+      <PageBanner title={t("ourProjects")} crumb={t("projects")} />
       <section className="mx-auto max-w-7xl px-4 py-16">
         <SectionHead title={t("ourProjects")} sub={t("projectsSub")} />
         <div className="mb-8 flex flex-wrap gap-2">
@@ -40,7 +38,7 @@ function Page() {
         </div>
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{list.map((p) => <ProjectCard key={p.id} p={p} />)}</div>
       </section>
-      <CtaBanner image={chantier} />
+      <CtaBanner />
     </SiteLayout>
   );
 }

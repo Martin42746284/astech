@@ -1,6 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { CheckCircle2 } from "lucide-react";
-import rendu3d from "@/assets/rendu3d.jpg";
 import { SiteLayout, PageBanner } from "@/components/site/SiteLayout";
 import { ServiceIcon } from "@/components/site/ServiceIcon";
 import { Button } from "@/components/ui/button";
@@ -30,7 +29,7 @@ function Page() {
   const list = (f: string) => pick(s, f).split("\n").filter(Boolean);
   return (
     <SiteLayout>
-      <PageBanner title={pick(s, "title")} crumb={t("services")} image={rendu3d} />
+      <PageBanner title={pick(s, "title")} crumb={t("services")} />
       <section className="mx-auto grid max-w-7xl gap-10 px-4 py-16 lg:grid-cols-3">
         <div className="lg:col-span-2">
           <ServiceIcon name={s.icon} className="h-12 w-12 text-primary-glow" />

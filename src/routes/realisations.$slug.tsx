@@ -31,10 +31,10 @@ function Page() {
       <section className="mx-auto max-w-5xl px-4 py-12">
         <Link to="/realisations" className="text-sm font-semibold text-accent">← {t("ourProjects")}</Link>
         <span className="mt-6 block text-sm font-semibold text-accent">{t(`cat_${p.category}` as DictKey)}</span>
-        <h1 className="text-3xl font-extrabold text-secondary md:text-4xl">{pick(p, "title")}</h1>
-        <div className="mt-3 flex gap-6 text-sm text-muted-foreground">
-          {p.location && <span className="flex items-center gap-1"><MapPin className="h-4 w-4" />{p.location}</span>}
-          {p.year && <span className="flex items-center gap-1"><Calendar className="h-4 w-4" />{p.year}</span>}
+        <h1 className="break-words text-3xl font-extrabold text-secondary md:text-4xl">{pick(p, "title")}</h1>
+        <div className="mt-3 flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground">
+          {p.location && <span className="flex min-w-0 items-center gap-1"><MapPin className="h-4 w-4 shrink-0" /><span className="break-words">{p.location}</span></span>}
+          {p.year && <span className="flex items-center gap-1"><Calendar className="h-4 w-4 shrink-0" />{p.year}</span>}
         </div>
         <button onClick={() => setZoom(true)} className="mt-8 block w-full overflow-hidden rounded-xl" aria-label="Agrandir">
           <img src={p.image} alt={pick(p, "title")} className="w-full object-cover" />

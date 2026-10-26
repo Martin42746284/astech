@@ -78,7 +78,7 @@ function Page() {
 
   return (
     <SiteLayout>
-      <PageBanner title={`${t("contact")} / ${t("quote")}`} crumb={t("contact")} image={chantier} />
+      <PageBanner title={`${t("contact")} / ${t("quote")}`} crumb={t("contact")} />
       <section className="mx-auto grid max-w-7xl gap-10 px-4 py-16 lg:grid-cols-5">
         <div className="space-y-6 lg:col-span-2">
           <h2 className="text-xl font-bold text-secondary">{t("contactInfo")}</h2>

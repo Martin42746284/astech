@@ -1,12 +1,89 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Building2, Layers, ShieldCheck, MessageCircle, Star } from "lucide-react";
+import { useEffect, useState } from "react";
 import hero from "@/assets/hero.jpg";
 import chantier from "@/assets/chantier.jpg";
+import fondation from "@/assets/fondation.jpg";
+import rendu3d from "@/assets/rendu3d.jpg";
 import { SiteLayout, CtaBanner, trackWhatsapp } from "@/components/site/SiteLayout";
 import { ServiceCard, ProjectCard, SectionHead } from "@/components/site/Cards";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n";
 import { useSql, useSettings, waLink, type Project, type Service, type Testimonial } from "@/lib/data";
+
+const HERO_IMAGES = [hero, chantier, fondation, rendu3d];
+
+/** Retourne un tableau aléatoirement mélangé (Fisher-Yates). */
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function HeroSlideshow() {
+  // SSR-safe: pas de Math.random() à l'initialisation → même image côté serveur et client
+  const [order, setOrder] = useState<string[]>(HERO_IMAGES);
+  const [current, setCurrent] = useState(0);
+  const [nextIdx, setNextIdx] = useState<number | null>(null);
+  const [nextVisible, setNextVisible] = useState(false);
+
+  // Shuffle après le montage (client uniquement) en gardant HERO_IMAGES[0] en tête
+  useEffect(() => {
+    const rest = shuffle(HERO_IMAGES.slice(1));
+    setOrder([HERO_IMAGES[0], ...rest]);
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(function tick() {
+      const next = (current + 1) % order.length;
+      setNextIdx(next);
+      setNextVisible(false);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setNextVisible(true);
+        });
+      });
+    }, 5000);
+    return () => clearTimeout(timer);
+  }, [current, order]);
+
+  function handleTransitionEnd() {
+    if (nextIdx !== null) {
+      setCurrent(nextIdx);
+      setNextIdx(null);
+      setNextVisible(false);
+    }
+  }
+
+  return (
+    <>
+      {/* Image courante — toujours visible en dessous */}
+      <img
+        src={order[current]}
+        alt="ASTECH construction Madagascar"
+        width={1600}
+        height={912}
+        className="absolute inset-0 -z-20 h-full w-full object-cover"
+      />
+      {/* Nouvelle image — fade in par-dessus */}
+      {nextIdx !== null && (
+        <img
+          src={order[nextIdx]}
+          alt=""
+          aria-hidden
+          width={1600}
+          height={912}
+          className="absolute inset-0 -z-20 h-full w-full object-cover transition-opacity duration-1000 ease-in-out"
+          style={{ opacity: nextVisible ? 1 : 0 }}
+          onTransitionEnd={handleTransitionEnd}
+        />
+      )}
+    </>
+  );
+}
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -30,7 +107,7 @@ function Index() {
   return (
     <SiteLayout>
       <section className="relative isolate overflow-hidden bg-secondary text-secondary-foreground">
-        <img src={hero} alt="Villa construite par ASTECH" width={1600} height={912} className="absolute inset-0 -z-20 h-full w-full object-cover" />
+        <HeroSlideshow />
         <div className="absolute inset-0 -z-10 bg-hero-overlay" />
         <div className="mx-auto max-w-7xl px-4 pb-10 pt-20 md:pt-28">
           <p className="eyebrow text-primary">{t("heroEyebrow")}</p>
@@ -88,7 +165,7 @@ function Index() {
         </section>
       )}
 
-      <CtaBanner image={chantier} />
+      <CtaBanner />
     </SiteLayout>
   );
 }

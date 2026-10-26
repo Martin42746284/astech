@@ -23,16 +23,16 @@ export function ProjectCard({ p }: { p: Project }) {
   const { pick, t } = useI18n();
   return (
     <Link to="/realisations/$slug" params={{ slug: p.slug }} className="group overflow-hidden rounded-lg border bg-card shadow-card">
-      <div className="aspect-[4/3] overflow-hidden">
+      <div className="aspect-4/3 overflow-hidden">
         <img src={p.image} alt={pick(p, "title")} loading="lazy" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
       </div>
-      <div className="flex items-center justify-between p-4">
-        <div>
+      <div className="flex items-start justify-between gap-3 p-4">
+        <div className="min-w-0 flex-1">
           <span className="text-xs font-semibold text-accent">{t(`cat_${p.category}` as DictKey)}</span>
-          <h3 className="font-display font-bold text-secondary">{pick(p, "title")}</h3>
-          <p className="text-xs text-muted-foreground">{p.location}</p>
+          <h3 className="break-words font-display font-bold text-secondary">{pick(p, "title")}</h3>
+          <p className="break-words text-xs text-muted-foreground">{p.location}</p>
         </div>
-        <ArrowRight className="h-4 w-4 text-muted-foreground transition group-hover:translate-x-1 group-hover:text-primary-glow" />
+        <ArrowRight className="mt-1 h-4 w-4 shrink-0 text-muted-foreground transition group-hover:translate-x-1 group-hover:text-primary-glow" />
       </div>
     </Link>
   );

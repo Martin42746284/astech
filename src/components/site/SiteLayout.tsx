@@ -1,6 +1,87 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
+import heroImg from "@/assets/hero.jpg";
+import chantierImg from "@/assets/chantier.jpg";
+import fondationImg from "@/assets/fondation.jpg";
+import rendu3dImg from "@/assets/rendu3d.jpg";
 import { Menu, X, Phone, Mail, Facebook, MessageCircle } from "lucide-react";
+
+const SLIDESHOW_IMAGES = [heroImg, chantierImg, fondationImg, rendu3dImg] as const;
+
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const tmp = a[i] as T;
+    a[i] = a[j] as T;
+    a[j] = tmp;
+  }
+  return a;
+}
+
+/** Slideshow d'arrière-plan réutilisable (crossfade toutes les 5 s). */
+function BannerSlideshow({ className }: { className?: string }) {
+  // SSR-safe: pas de Math.random() à l'initialisation → même image côté serveur et client
+  const [order, setOrder] = useState<string[]>([...SLIDESHOW_IMAGES]);
+  const [current, setCurrent] = useState(0);
+  const [nextIdx, setNextIdx] = useState<number | null>(null);
+  const [nextVisible, setNextVisible] = useState(false);
+
+  // Shuffle après le montage (client uniquement) en gardant SLIDESHOW_IMAGES[0] en tête
+  useEffect(() => {
+    const rest = shuffle(SLIDESHOW_IMAGES.slice(1));
+    setOrder([SLIDESHOW_IMAGES[0], ...rest]);
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(function tick() {
+      const next = (current + 1) % order.length;
+      setNextIdx(next);
+      setNextVisible(false);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setNextVisible(true);
+        });
+      });
+    }, 5000);
+    return () => clearTimeout(timer);
+  }, [current, order]);
+
+  function handleTransitionEnd() {
+    if (nextIdx !== null) {
+      setCurrent(nextIdx);
+      setNextIdx(null);
+      setNextVisible(false);
+    }
+  }
+
+  return (
+    <>
+      {/* Image courante — toujours visible en dessous */}
+      <img
+        src={order[current]}
+        alt=""
+        aria-hidden
+        width={1600}
+        height={912}
+        className={`absolute inset-0 h-full w-full object-cover ${className ?? ""}`}
+      />
+      {/* Nouvelle image — fade in par-dessus */}
+      {nextIdx !== null && (
+        <img
+          src={order[nextIdx]}
+          alt=""
+          aria-hidden
+          width={1600}
+          height={912}
+          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ease-in-out ${className ?? ""}`}
+          style={{ opacity: nextVisible ? 1 : 0 }}
+          onTransitionEnd={handleTransitionEnd}
+        />
+      )}
+    </>
+  );
+}
 import { Logo } from "./Logo";
 import { useI18n, type DictKey } from "@/lib/i18n";
 import { useSettings, waLink, telLink } from "@/lib/data";
@@ -51,7 +132,7 @@ export function SiteLayout({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-40 bg-secondary text-secondary-foreground shadow-card">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-2 px-4 lg:gap-4">
           <Link to="/" aria-label="ASTECH – Accueil">
             <Logo />
           </Link>
@@ -66,7 +147,7 @@ export function SiteLayout({ children }: { children: ReactNode }) {
               <Link to="/contact">{t("quote")}</Link>
             </Button>
           </nav>
-          <button className="lg:hidden" onClick={() => setOpen(!open)} aria-label="Menu" aria-expanded={open}>
+          <button className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md lg:hidden" onClick={() => setOpen(!open)} aria-label="Menu" aria-expanded={open}>
             {open ? <X /> : <Menu />}
           </button>
         </div>
@@ -122,7 +203,7 @@ export function SiteLayout({ children }: { children: ReactNode }) {
           </div>
         </div>
         <div className="border-t border-sidebar-border">
-          <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 text-xs opacity-70">
+          <div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-4 text-xs opacity-70 sm:flex-row sm:items-center sm:justify-between">
             <span>© {new Date().getFullYear()} ASTECH. {t("rights")}</span>
             <LangSwitch />
           </div>
@@ -143,11 +224,11 @@ export function SiteLayout({ children }: { children: ReactNode }) {
   );
 }
 
-export function PageBanner({ title, crumb, image }: { title: string; crumb: string; image: string }) {
+export function PageBanner({ title, crumb }: { title: string; crumb: string; image?: string }) {
   const { t } = useI18n();
   return (
     <section className="relative isolate overflow-hidden bg-secondary text-secondary-foreground">
-      <img src={image} alt="" className="absolute inset-0 -z-20 h-full w-full object-cover" />
+      <BannerSlideshow className="-z-20" />
       <div className="absolute inset-0 -z-10 bg-banner-overlay" />
       <div className="mx-auto max-w-7xl px-4 py-16 md:py-20">
         <h1 className="text-3xl font-extrabold md:text-4xl">{title}</h1>
@@ -159,15 +240,15 @@ export function PageBanner({ title, crumb, image }: { title: string; crumb: stri
   );
 }
 
-export function CtaBanner({ image }: { image: string }) {
+export function CtaBanner() {
   const { t } = useI18n();
   const s = useSettings();
   return (
     <section className="mx-auto max-w-7xl px-4 py-12">
       <div className="relative isolate overflow-hidden rounded-xl bg-secondary text-secondary-foreground">
-        <img src={image} alt="" loading="lazy" className="absolute inset-0 -z-20 h-full w-full object-cover" />
-        <div className="absolute inset-0 -z-10 bg-banner-overlay" />
-        <div className="max-w-xl p-8 md:p-12">
+        <BannerSlideshow className="-z-20" />
+        <div className="absolute inset-0 -z-10 bg-hero-overlay" />
+        <div className="max-w-xl p-6 sm:p-8 md:p-12">
           <h2 className="text-2xl font-extrabold md:text-3xl">{t("ctaTitle")}</h2>
           <p className="mt-3 opacity-85">{t("ctaText")}</p>
           <div className="mt-6 flex flex-wrap gap-3">

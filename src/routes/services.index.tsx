@@ -1,6 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import chantier from "@/assets/chantier.jpg";
-import rendu3d from "@/assets/rendu3d.jpg";
 import { SiteLayout, PageBanner, CtaBanner } from "@/components/site/SiteLayout";
 import { ServiceCard, SectionHead } from "@/components/site/Cards";
 import { useI18n } from "@/lib/i18n";
@@ -23,12 +21,12 @@ function Page() {
   const q = useSql<Service>("services", "SELECT * FROM services WHERE active=1 ORDER BY ord");
   return (
     <SiteLayout>
-      <PageBanner title={t("ourServices")} crumb={t("services")} image={rendu3d} />
+      <PageBanner title={t("ourServices")} crumb={t("services")} />
       <section className="mx-auto max-w-7xl px-4 py-16">
         <SectionHead title={t("servicesSub")} sub={t("servicesIntro")} />
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{q.data?.map((s) => <ServiceCard key={s.id} s={s} />)}</div>
       </section>
-      <CtaBanner image={chantier} />
+      <CtaBanner />
     </SiteLayout>
   );
 }

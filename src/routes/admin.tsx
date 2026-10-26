@@ -1,6 +1,6 @@
 import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
-import { LayoutDashboard, Wrench, Images, Inbox, HelpCircle, MessageSquareQuote, Settings, LogOut, ExternalLink, Menu } from "lucide-react";
+import { LayoutDashboard, Wrench, Images, Inbox, HelpCircle, MessageSquareQuote, Settings, LogOut, ExternalLink, Menu, X } from "lucide-react";
 import { Logo } from "@/components/site/Logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -42,7 +42,8 @@ function AdminLayout() {
 
   return (
     <div className="flex min-h-screen bg-muted">
-      <aside className={cn("fixed inset-y-0 left-0 z-40 flex w-64 flex-col bg-sidebar p-4 text-sidebar-foreground transition-transform lg:static lg:translate-x-0", menu ? "translate-x-0" : "-translate-x-full")}>
+      {menu && <button className="fixed inset-0 z-30 bg-black/50 lg:hidden" onClick={() => setMenu(false)} aria-label="Fermer le menu" />}
+      <aside id="admin-navigation" className={cn("fixed inset-y-0 left-0 z-40 flex w-64 flex-col overflow-y-auto bg-sidebar p-4 text-sidebar-foreground transition-transform lg:static lg:translate-x-0", menu ? "translate-x-0" : "-translate-x-full")}>
         <Link to="/admin" className="mb-8 px-2"><Logo /></Link>
         <nav className="flex-1 space-y-1">
           {NAV.map((n) => (
@@ -58,9 +59,11 @@ function AdminLayout() {
       </aside>
       <div className="min-w-0 flex-1">
         <header className="flex h-14 items-center gap-3 border-b bg-card px-4 lg:hidden">
-          <button onClick={() => setMenu(!menu)} aria-label="Menu"><Menu /></button><span className="font-bold">ASTECH Admin</span>
+          <button className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md" onClick={() => setMenu(!menu)} aria-label={menu ? "Fermer le menu" : "Menu"} aria-expanded={menu} aria-controls="admin-navigation">
+            {menu ? <X /> : <Menu />}
+          </button><span className="font-bold">ASTECH Admin</span>
         </header>
-        <main className="p-4 md:p-8"><Outlet /></main>
+        <main className="min-w-0 p-3 sm:p-4 md:p-8"><Outlet /></main>
       </div>
     </div>
   );
