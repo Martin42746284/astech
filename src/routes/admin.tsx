@@ -4,8 +4,8 @@ import { LayoutDashboard, Wrench, Images, Inbox, HelpCircle, MessageSquareQuote,
 import { Logo } from "@/components/site/Logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { one } from "@/lib/db";
-import { useSql } from "@/lib/data";
+import { useDashboardStats } from "@/lib/data";
+import { adminLogin, adminLogout, adminStatus } from "@/lib/data.functions";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/admin")({
@@ -34,8 +34,9 @@ const NAV = [
 function AdminLayout() {
   const [ok, setOk] = useState<boolean | null>(null);
   const [menu, setMenu] = useState(false);
-  const newCount = useSql<{ n: number }>("new-quotes", "SELECT COUNT(*) n FROM quotes WHERE status='new'").data?.[0]?.n ?? 0;
-  useEffect(() => setOk(sessionStorage.getItem("astech-admin") === "1"), []);
+  const stats = useDashboardStats(ok === true);
+  const newCount = stats.data?.newQuotes ?? 0;
+  useEffect(() => { adminStatus().then((r) => setOk(r.admin)).catch(() => setOk(false)); }, []);
 
   if (ok === null) return null;
   if (!ok) return <Login onOk={() => setOk(true)} />;
@@ -54,7 +55,7 @@ function AdminLayout() {
           ))}
         </nav>
         <a href="/" target="_blank" className="flex items-center gap-2 px-3 py-2 text-sm opacity-80 hover:opacity-100"><ExternalLink className="h-4 w-4" />Voir le site</a>
-        <button onClick={() => { sessionStorage.removeItem("astech-admin"); setOk(false); }} className="flex items-center gap-2 px-3 py-2 text-sm opacity-80 hover:opacity-100"><LogOut className="h-4 w-4" />Se déconnecter</button>
+        <button onClick={async () => { await adminLogout().catch(() => {}); setOk(false); }} className="flex items-center gap-2 px-3 py-2 text-sm opacity-80 hover:opacity-100"><LogOut className="h-4 w-4" />Se déconnecter</button>
       </aside>
       <div className="min-w-0 flex-1">
         <header className="flex h-14 items-center gap-3 border-b bg-card px-4 lg:hidden">
@@ -71,8 +72,8 @@ function Login({ onOk }: { onOk: () => void }) {
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const pwd = String(new FormData(e.currentTarget).get("pwd"));
-    const row = await one<{ value: string }>("SELECT value FROM settings WHERE key='admin_password'");
-    if (row?.value === pwd) { sessionStorage.setItem("astech-admin", "1"); onOk(); } else setErr(true);
+    const res = await adminLogin({ data: { password: pwd } }).catch(() => ({ ok: false as const }));
+    if (res.ok) onOk(); else setErr(true);
   }
   return (
     <div className="grid min-h-screen place-items-center bg-secondary px-4">
