@@ -1,4 +1,16 @@
+import net from "node:net";
 import { neon, type FullQueryResults } from "@neondatabase/serverless";
+
+// Some networks (no IPv6 route + parallel "happy eyeballs" connect attempts)
+// make Node's default autoSelectFamily connect to the Neon endpoint fail with
+// ETIMEDOUT, while a sequential IPv4-first connect succeeds in ~500ms.
+// Falling back to sequential connects keeps the Neon HTTP driver working here
+// and is harmless on hosts where IPv6 works.
+try {
+  net.setDefaultAutoSelectFamily(false);
+} catch {
+  // Older Node without the API — keep the default behaviour.
+}
 
 type Statement = { query: string; params?: unknown[] };
 type QueryResult = FullQueryResults<false>;

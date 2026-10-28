@@ -128,23 +128,91 @@ L’export CSV des demandes ne contient que les demandes correspondant au filtre
 - Ne pas ajouter dans les descriptions ou notes des données personnelles qui ne sont pas nécessaires.
 - Les mentions légales indiquent que les données du formulaire servent à répondre aux demandes et mentionnent une conservation maximale de 24 mois. Appliquer la politique de conservation réelle de l’entreprise et supprimer les demandes lorsqu’elles ne doivent plus être gardées.
 
-## 6. Informations techniques pour la mise en service
+## 6. Informations techniques et mise en service
 
-Le dépôt contient des commandes de développement :
+Cette section s’adresse à la personne qui installe, déploie ou maintient le projet. L’utilisation quotidienne du site et du back-office ne la nécessite pas.
+
+### 6.1 Outils et commandes
+
+Prérequis : Node.js 22.12 ou supérieur (recommandé), npm, un compte Neon et un compte Vercel.
 
 ```sh
-npm install
-npm run dev
+npm install        # installer les dépendances
+npm run dev        # serveur de développement → http://localhost:8080
+npm run build      # build de production (sortie Vercel dans .vercel/output)
+npm test           # tests (Vitest)
+npm run lint       # contrôle du code (ESLint)
 ```
 
-La commande `npm run build` produit le build de déploiement. Ces commandes sont destinées à la personne en charge de l’installation, pas à l’utilisation quotidienne du site.
+En développement, l’application s’ouvre sur `http://localhost:8080`. Les modifications de code sont rechargées automatiquement. Après avoir modifié une fonction serveur (`src/lib/data.functions.ts`), si une page affiche « Invalid server function ID », redémarrer le serveur (Ctrl+C puis `npm run dev`).
 
-Le serveur utilise directement le pilote officiel Neon. Il faut configurer `DATABASE_URL` (URL de connexion PostgreSQL Neon) et `SESSION_SECRET` (secret long et aléatoire pour signer la session d’administration) dans les variables d’environnement de Vercel. Elles ne doivent jamais être publiées dans le navigateur, dans le dépôt ou dans ce manuel. En développement, les placer dans un fichier `.env` local non commité.
+Ces commandes sont destinées à la personne en charge de l’installation, pas à l’utilisation quotidienne du site.
 
-Avant une utilisation en production, demander à la personne qui maintient le projet de :
+### 6.2 Variables d’environnement
 
-1. exécuter `database/schema.sql` dans le SQL Editor du projet Neon ;
-2. configurer `DATABASE_URL` et `SESSION_SECRET` dans Vercel ;
-3. changer le mot de passe administrateur initial après la première connexion ;
-4. effectuer un test de soumission de devis et de gestion depuis le back-office ;
-5. définir et vérifier une procédure régulière de sauvegarde et de restauration dans Neon.
+Deux variables sont indispensables. Elles sont lues par le serveur uniquement :
+
+| Variable         | Rôle                                                             |
+| ---------------- | ---------------------------------------------------------------- |
+| `DATABASE_URL`   | URL de connexion PostgreSQL Neon, avec `sslmode=require`         |
+| `SESSION_SECRET` | chaîne longue et aléatoire qui signe la session d’administration |
+
+- **En développement** : fichier `.env` à la racine du projet (ignoré par git ; `.env.example` donne le modèle).
+- **En production** : les mêmes variables, à renseigner dans les réglages Vercel **pour chaque environnement** (Production et Preview).
+
+Elles ne doivent jamais être publiées dans le navigateur, dans le dépôt ou dans ce manuel : aucun préfixe `VITE_`, qui rendrait la valeur visible côté client. Vérifier l’ignorance du fichier avec `git check-ignore .env` (le chemin doit s’afficher).
+
+Si `SESSION_SECRET` change, tous les administrateurs sont déconnectés ; l’utilisation continue du site n’est pas affectée.
+
+### 6.3 Vérifier la liaison à la base Neon
+
+État vérifié le 27 octobre 2026 : connexion opérationnelle, schéma appliqué (tables `settings`, `services`, `projects`, `faqs`, `testimonials`, `quotes`, `visits`, `whatsapp_clicks`), 19 paramètres d’entreprise et le mot de passe administrateur initial déjà présents dans la base.
+
+Procédure de vérification, à répéter après un changement de configuration :
+
+1. `npm run dev` puis ouvrir `http://localhost:8080` : l’accueil s’affiche.
+2. Ouvrir `/admin` et se connecter : le tableau de bord affiche les compteurs (visites, devis, projets).
+3. Modifier puis réenregistrer un élément dans **Paramètres**, recharger la page : la modification est conservée.
+4. Envoyer une demande d’essai depuis `/contact`, la retrouver dans **Demandes de devis**, puis la supprimer.
+
+Si une étape échoue, voir la section 7 (Dépannage).
+
+**Réseau.** Le pilote Neon rejoint le serveur en HTTPS. Sur un réseau sans IPv6 (Wi-Fi domestique, certains réseaux d’entreprise), Node peut échouer avec `fetch failed / ETIMEDOUT` : le module `src/lib/neon.server.ts` bascule alors sur une connexion IPv4 séquentielle. Si cette erreur réapparaît, c’est que ce correctif a été retiré ou neutralisé.
+
+### 6.4 Déploiement sur Vercel
+
+1. Créer la base Neon et exécuter `database/schema.sql` dans le SQL Editor (voir 6.3 pour l’état attendu).
+2. Connecter le dépôt à Vercel : le build exécute `npm run build` avec le preset `vercel`.
+3. Renseigner `DATABASE_URL` et `SESSION_SECRET` dans **Settings → Environment Variables**, pour Production et Preview.
+4. Déployer, puis suivre **Logs** en temps réel en cas d’erreur.
+5. Contrôler la production avec la procédure de la section 6.3 (accueil, connexion admin, envoi d’un devis).
+
+> **Projet relié à Lovable** : ne jamais réécrire l’historique git déjà poussé (pas de force push, rebase, amend ni squash). Chaque commit poussé sur la branche connectée se synchronise avec l’éditeur Lovable : laisser la branche dans un état fonctionnel.
+
+### 6.5 Liste de mise en service
+
+Avant une utilisation en production, mener à bien cette liste :
+
+1. Exécuter `database/schema.sql` dans le SQL Editor du projet Neon (ou vérifier son état, section 6.3).
+2. Configurer `DATABASE_URL` et `SESSION_SECRET` dans Vercel, pour chaque environnement.
+3. Changer le mot de passe administrateur initial à l’aide de **Paramètres > Sécurité** (8 caractères minimum).
+4. Effectuer un test de soumission de devis et de gestion depuis le back-office (section 6.3).
+5. Définir et vérifier une procédure régulière de sauvegarde et de restauration dans Neon (section 4).
+
+## 7. Dépannage
+
+| Symptôme                                                                                          | Cause probable                                                                                      | Que faire                                                                                                                                                    |
+| ------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| « The database is temporarily unavailable. Try again in a moment. » sur le site ou le back-office | Base injoignable ou mauvaise `DATABASE_URL`                                                         | Vérifier `DATABASE_URL` (`.env` en dev, Vercel en prod), démarrer l’instance Neon dans sa console, recharger la page.                                        |
+| « The database is not initialized. The app owner should apply database/schema.sql. »              | Schéma absent de la base                                                                            | Exécuter `database/schema.sql` dans le SQL Editor Neon (les tables existantes sont conservées : `IF NOT EXISTS`).                                            |
+| « DATABASE_URL is not set » dans le journal du serveur                                            | Variable manquante                                                                                  | La créer selon la section 6.2, puis redémarrer le serveur ou redéployer.                                                                                     |
+| « SESSION_SECRET is not set » ; `/admin` inaccessible                                             | Variable manquante                                                                                  | Créer une valeur longue et aléatoire (section 6.2).                                                                                                          |
+| Page « This page didn’t load » (erreur 500)                                                       | Erreur serveur non rattrapée                                                                        | Lire le terminal en développement, les logs Vercel en production, puis corriger la cause indiquée.                                                           |
+| HTTP 403 « Forbidden » sur une fonction serveur appelée hors du site                              | Protection anti-CSRF : l’en-tête `Origin` ou `Referer` doit être du même domaine                    | Naviguer depuis le site. Un appel externe (script, `curl`) doit envoyer `Origin: https://votre-domaine`.                                                     |
+| Connexion admin acceptée, puis mot de passe redemandé aussitôt                                    | Cookie `Secure` refusé par le navigateur en HTTP sur une adresse IP                                 | En développement, passer par `http://localhost:8080` ; en production, vérifier qu’HTTPS est bien actif.                                                      |
+| Administrateur déconnecté en cours de journée                                                     | La session admin dure 8 heures maximum                                                              | Se reconnecter.                                                                                                                                              |
+| Mot de passe admin oublié                                                                         | Aucune réinitialisation par e-mail prévue                                                           | Dans le SQL Editor Neon : `update settings set value = 'NOUVEAU_MOT_DE_PASSE' where key = 'admin_password';` puis le changer dans **Paramètres > Sécurité**. |
+| « Invalid server function ID »                                                                    | Serveur de dev dépassé après modification d’une fonction serveur                                    | Redémarrer `npm run dev`.                                                                                                                                    |
+| Modifications non visibles sur le site                                                            | Cache navigateur de 30 s (services et réglages)                                                     | Recharger la page ; vérifier aussi la langue FR/MG sélectionnée.                                                                                             |
+| Le formulaire de devis refuse un envoi                                                            | Une minute d’attente entre deux envois, champ obligatoire manquant, pièce jointe trop lourde (3 Mo) | Corriger les champs signalés et réessayer après une minute.                                                                                                  |
+| `fetch failed / ETIMEDOUT` vers Neon dans le journal                                              | Réseau sans IPv6 (voir 6.3)                                                                         | Vérifier que le correctif de `src/lib/neon.server.ts` est toujours présent.                                                                                  |
