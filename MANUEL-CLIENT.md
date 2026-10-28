@@ -9,7 +9,7 @@ Ce manuel s’adresse à la personne qui met à jour le site ASTECH et traite le
 1. Ouvrez l’adresse du back-office dans votre navigateur : **`votre-domaine/admin`** (le lien exact vous a été communiqué lors de la mise en service).
 2. Saisissez votre mot de passe dans le champ, puis cliquez sur **Se connecter**.
    - Mot de passe erroné : le message **« Mot de passe incorrect. »** s’affiche sous le champ. Vérifiez les majuscules/minuscules puis réessayez.
-   - Au premier usage, le mot de passe est `astech2026` (affiché sous le formulaire). **Changez-le immédiatement** (section 8, onglet **Sécurité**).
+   - Au premier usage, le mot de passe est `astech2026` (communiqué par le développeur). **Changez-le immédiatement** (section 8, onglet **Sécurité**).
 
 Votre session reste ouverte **8 heures**. Au-delà, le site vous redemande le mot de passe : rien n’est perdu, reconnectez-vous simplement. Pour fermer votre session sur un poste partagé, cliquez sur **Se déconnecter**, tout en bas de la barre de gauche.
 
@@ -110,7 +110,7 @@ Dans le détail, la zone **Notes internes** sert au suivi (relance, devis envoy�
 - **Export CSV** (en haut à droite) : télécharge la **liste filtrée** dans un fichier `demandes-devis-AAAA-MM-JJ.csv`, ouvrable dans Excel. Le nom du fichier suit le filtre actif : sélectionnez d’abord le statut voulu. Cet export n’est **pas** une sauvegarde complète des données.
 - **Supprimer** : demande confirmation **« Supprimer cette demande (droit à l'effacement) ? »**, puis **« Demande supprimée »**. Utilisez ce bouton pour répondre à une demande d’effacement d’un client : la suppression est **définitive**.
 
-> **Vie privée.** Les demandes contiennent des coordonnées personnelles et des documents joints. Ne les conservez que le temps nécessaire au traitement, ne les partagez pas hors des personnes habilitées, et supprimez-les lorsqu’elles ne doivent plus être gardées (les mentions légales annoncent une conservation maximale de 24 mois).
+> **Vie privée.** Les demandes contiennent des coordonnées personnelles et des documents joints. Ne les conservez que le temps nécessaire au traitement, ne les partagez pas hors des personnes habilitées, et supprimez-les lorsqu’elles ne doivent plus être gardées.
 
 Sur téléphone, les demandes sont présentées en fiches plutôt qu’en tableau, avec les mêmes boutons.
 

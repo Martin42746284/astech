@@ -126,7 +126,7 @@ L’export CSV des demandes ne contient que les demandes correspondant au filtre
 - Sauvegarder régulièrement et tester périodiquement la restauration sur une copie.
 - Limiter l’accès au back-office et changer le mot de passe initial.
 - Ne pas ajouter dans les descriptions ou notes des données personnelles qui ne sont pas nécessaires.
-- Les mentions légales indiquent que les données du formulaire servent à répondre aux demandes et mentionnent une conservation maximale de 24 mois. Appliquer la politique de conservation réelle de l’entreprise et supprimer les demandes lorsqu’elles ne doivent plus être gardées.
+- Les données du formulaire de devis servent uniquement à répondre aux demandes : appliquer la politique de conservation réelle de l’entreprise et supprimer les demandes lorsqu’elles ne doivent plus être gardées.
 
 ## 6. Informations techniques et mise en service
 

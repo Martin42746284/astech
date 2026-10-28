@@ -87,7 +87,6 @@ function Login({ onOk }: { onOk: () => void }) {
         <Input name="pwd" type="password" autoFocus className="mt-4" aria-label="Mot de passe" />
         {err && <p className="mt-2 text-sm text-destructive">Mot de passe incorrect.</p>}
         <Button type="submit" variant="cta" className="mt-4 w-full">Se connecter</Button>
-        <p className="mt-4 text-xs text-muted-foreground">Mot de passe initial : astech2026 (à changer dans Paramètres).</p>
       </form>
     </div>
   );
