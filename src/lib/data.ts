@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  getSettings, listServices, getService, listProjects, getProject, listFaqs, listTestimonials,
+  getSettings, listServices, getService, listProjects, getProject, listFaqs, listTestimonials, listGallery, getGalleryVideo,
   adminListRows, adminSaveRow, adminDeleteRow, adminListQuotes, updateQuoteStatus,
   updateQuoteNotes, deleteQuote, saveSettings, changeAdminPassword, getDashboardStats,
 } from "./data.functions";
@@ -18,6 +18,18 @@ export type Project = {
 };
 export type Faq = { id: number; q_fr: string; q_mg: string; a_fr: string; a_mg: string; ord: number };
 export type Testimonial = { id: number; name: string; role: string; text_fr: string; text_mg: string; rating: number; active: number };
+export type GalleryItem = {
+  id: number;
+  title_fr: string;
+  title_mg: string;
+  category: string;
+  image: string;
+  /** 'photo' (défaut) ou 'video' ; la vidéo elle-même n'est pas dans cette liste */
+  type?: string | null;
+  ord: number;
+  active: number;
+  created_at: string;
+};
 export type Quote = {
   id: number; created_at: string; status: QuoteStatus; name: string; phone: string; email: string | null;
   project_type: string; location: string | null; budget: string | null; surface: string | null; message: string;
@@ -55,6 +67,24 @@ export function useFaqs() {
 
 export function useTestimonials() {
   return useQuery({ queryKey: ["testimonials"], queryFn: () => listTestimonials() as Promise<Testimonial[]>, staleTime: 30_000 });
+}
+
+export function useGallery() {
+  return useQuery({
+    queryKey: ["gallery"],
+    queryFn: () => listGallery() as Promise<GalleryItem[]>,
+    staleTime: 30_000,
+  });
+}
+
+/** Récupère la vidéo d'une entrée de galerie (à la demande, uniquement à la lecture). */
+export function useGalleryVideo(id: number, enabled = true) {
+  return useQuery({
+    queryKey: ["gallery-video", id],
+    queryFn: () => getGalleryVideo({ data: { id } }) as Promise<{ video: string }>,
+    enabled,
+    staleTime: 5 * 60_000,
+  });
 }
 
 // ---------- Admin hooks (session-gated on the server) ----------

@@ -9,7 +9,7 @@ Ce manuel s’adresse à la personne qui met à jour le site ASTECH et traite le
 1. Ouvrez l’adresse du back-office dans votre navigateur : **`votre-domaine/admin`** (le lien exact vous a été communiqué lors de la mise en service).
 2. Saisissez votre mot de passe dans le champ, puis cliquez sur **Se connecter**.
    - Mot de passe erroné : le message **« Mot de passe incorrect. »** s’affiche sous le champ. Vérifiez les majuscules/minuscules puis réessayez.
-   - Au premier usage, le mot de passe est `astech2026` (communiqué par le développeur). **Changez-le immédiatement** (section 8, onglet **Sécurité**).
+   - Au premier usage, le mot de passe est `astech2026` (communiqué par le développeur). **Changez-le immédiatement** (section 9, onglet **Sécurité**).
 
 Votre session reste ouverte **8 heures**. Au-delà, le site vous redemande le mot de passe : rien n’est perdu, reconnectez-vous simplement. Pour fermer votre session sur un poste partagé, cliquez sur **Se déconnecter**, tout en bas de la barre de gauche.
 
@@ -22,6 +22,7 @@ Une barre à gauche liste les rubriques, dans cet ordre :
 | **Tableau de bord**   | Vue d’ensemble de l’activité                        |
 | **Services**          | Les prestations affichées sur le site               |
 | **Réalisations**      | Les projets de la galerie et de l’accueil           |
+| **Galerie**           | Les photos et vidéos (Galerie, accueil, À propos)   |
 | **Demandes de devis** | Les demandes reçues via le formulaire               |
 | **FAQ**               | Les questions et réponses                           |
 | **Témoignages**       | Les avis clients affichés                           |
@@ -82,7 +83,26 @@ Les messages **« Titre (FR) » est obligatoire**, **« Catégorie » est obliga
 
 Les projets les plus récents apparaissent en premier dans la liste comme sur le site.
 
-## 5. Traiter les demandes de devis
+## 5. Ajouter des photos et vidéos à la galerie
+
+Rubrique **Galerie** — les médias visibles apparaissent sur la page **Galerie** du site, sur l’**accueil** (les huit derniers) et sur la page **À propos** (les quatre derniers).
+
+1. Cliquez sur **Ajouter** (ou sur le crayon d’un média).
+2. Renseignez :
+   - **Titre (FR)** (obligatoire) et **Titre (MG)** : c’est la légende affichée sous le média ;
+   - **Catégorie** : facultative, pour classer les médias (ex. _Chantier_, _Livraison_, _Équipe_) ;
+   - **Type** : **Photo** (image fixe) ou **Vidéo** (clip) ;
+   - **Photo** (obligatoire) : elle est **redimensionnée et optimisée automatiquement** ; pour une vidéo, c’est la **vignette** (image miniature affichée dans la grille), **capturée automatiquement** — vous pouvez la remplacer par une image de votre choix ;
+   - **Vidéo** (obligatoire uniquement quand le Type est _Vidéo_) : choisissez un fichier — il est **compressé automatiquement en MP4**, **30 s maximum** (au-delà, la vidéo est tronquée à 30 s) et d’environ **2 Mo** une fois compressée. La barre d’avancement, la durée et le poids avant/après s’affichent pendant le traitement, qui peut prendre **une à deux minutes** ;
+   - **Ordre d'affichage** : le plus petit numéro s’affiche en premier ;
+   - **Visible sur le site** : décochez pour retirer temporairement un média sans le supprimer.
+3. Cliquez sur **Enregistrer**.
+
+Côté visiteur, la page **Galerie** présente une grille de vignettes : les vidéos affichent un **bouton de lecture** ; le clic ouvre la **visionneuse** plein écran — flèches **←** / **→** pour changer de média (aussi au clavier), croix ou touche **Échap** pour fermer. La vidéo se lance dans la visionneuse : elle n’est téléchargée qu’au moment où le visiteur l’ouvre, le reste du site n’est pas ralenti.
+
+Les messages **« Titre (FR) » est obligatoire**, **« Photo » est obligatoire** et **« Vidéo » est obligatoire** indiquent ce qui manque. La suppression est **définitive** : préférez la case **Visible sur le site**.
+
+## 6. Traiter les demandes de devis
 
 Rubrique **Demandes de devis** : c’est ici que arrivent les demandes envoyées depuis la page **Contact / Demander un devis** du site.
 
@@ -114,7 +134,7 @@ Dans le détail, la zone **Notes internes** sert au suivi (relance, devis envoy�
 
 Sur téléphone, les demandes sont présentées en fiches plutôt qu’en tableau, avec les mêmes boutons.
 
-## 6. Gérer la FAQ
+## 7. Gérer la FAQ
 
 Rubrique **FAQ** — les questions apparaissent sur la page **FAQ** du site.
 
@@ -125,7 +145,7 @@ Rubrique **FAQ** — les questions apparaissent sur la page **FAQ** du site.
 
 Il n’existe pas de case « visible » : **toutes les FAQ enregistrées sont publiées**. Pour retirer une question du site, supprimez-la (définitif) ou conservez-la si elle peut servir à nouveau.
 
-## 7. Gérer les témoignages
+## 8. Gérer les témoignages
 
 Rubrique **Témoignages** — les avis actifs s’affichent sur la page d’accueil.
 
@@ -133,7 +153,7 @@ Champs : **Nom** (obligatoire), **Qualité / ville**, **Texte (FR)** (obligatoir
 
 Seuls les témoignages **visibles** sont publiés : décochez la case pour mettre un avis en attente sans le supprimer. La note s’affiche en étoiles (★) sur le site.
 
-## 8. Les paramètres du site
+## 9. Les paramètres du site
 
 Rubrique **Paramètres**, avec 5 onglets. Pour **Entreprise**, **Textes** et **Légal**, cliquez toujours sur **Enregistrer les modifications** avant de changer d’onglet : le message **« Modifications enregistrées »** confirme, sinon vos saisies sont perdues.
 
@@ -155,7 +175,7 @@ Rubrique **Paramètres**, avec 5 onglets. Pour **Entreprise**, **Textes** et **L
 
 Messages possibles : **« Le nouveau mot de passe doit contenir au moins 8 caractères. »**, **« Les nouveaux mots de passe ne correspondent pas. »**, **« Le mot de passe actuel est incorrect. »**, et **« Mot de passe modifié »** en cas de succès.
 
-Conservez ce mot de passe en lieu sûr : personne d’autre ne peut le récupérer pour vous (voir section 11).
+Conservez ce mot de passe en lieu sûr : personne d’autre ne peut le récupérer pour vous (voir section 12).
 
 ### Sauvegarder les données (onglet Sauvegardes)
 
@@ -167,10 +187,10 @@ Les données ne sont pas dans votre navigateur mais dans la base en ligne (Neon)
 
 Le bouton **Ouvrir la console Neon** mène directement à la console. Si cette manipulation dépasse votre périmètre, demandez au développeur de programmer une sauvegarde régulière.
 
-## 9. Vérifier votre modification sur le site
+## 10. Vérifier votre modification sur le site
 
 1. Après un enregistrement, cliquez sur **Voir le site** (barre de gauche) ;
-2. ouvrez la page concernée : **Accueil** `/`, **Services**, **Réalisations**, **FAQ**, **À propos**, **Contact**, **Mentions légales** ;
+2. ouvrez la page concernée : **Accueil** `/`, **Services**, **Réalisations**, **Galerie**, **FAQ**, **À propos**, **Contact**, **Mentions légales** ;
 3. vérifiez les **deux langues** : les boutons **FR** / **MG** se trouvent dans l’en-tête et le pied de page.
 
 Points de vigilance :
@@ -179,7 +199,7 @@ Points de vigilance :
 - si une version **malgache** n’a pas été saisie, le site affiche automatiquement le **texte français** : c’est normal, complétez le champ (MG) pour corriger ;
 - vérifiez l’orthographe des coordonnées après toute modification des **Paramètres** : elles apparaissent sur tout le site.
 
-## 10. Publier un contenu, en résumé
+## 11. Publier un contenu, en résumé
 
 | Objectif                              | Rubrique                    | Geste exact                                             |
 | ------------------------------------- | --------------------------- | ------------------------------------------------------- |
@@ -187,13 +207,15 @@ Points de vigilance :
 | Masquer sans supprimer                | **Services / Témoignages**  | Décocher **Visible sur le site**                        |
 | Publier un chantier                   | **Réalisations**            | **Ajouter** → titre, catégorie, photo → **Enregistrer** |
 | Mettre un projet en avant             | **Réalisations**            | Cocher **Afficher sur l'accueil**                       |
+| Publier une photo ou une vidéo        | **Galerie**                 | **Ajouter** → titre + type + média → **Enregistrer**    |
+| Retirer un média temporairement       | **Galerie**                 | Décocher **Visible sur le site**                        |
 | Suivre une demande                    | **Demandes de devis**       | **Voir** → choisir le statut, ajouter des notes         |
 | Répondre à un droit à l’effacement    | **Demandes de devis**       | Filtrer, puis **Supprimer**                             |
 | Changer un tarif affiché / un horaire | **Paramètres → Entreprise** | Modifier → **Enregistrer les modifications**            |
 | Publier un avis client                | **Témoignages**             | **Ajouter** → **Enregistrer**                           |
 | Sécuriser l’accès                     | **Paramètres → Sécurité**   | Ancien + nouveau mot de passe → **Modifier**            |
 
-## 11. Dépannage courant
+## 12. Dépannage courant
 
 | Ce que vous observez                                                             | Ce qu’il faut faire                                                                                                                                                                  |
 | -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -207,7 +229,7 @@ Points de vigilance :
 | Vous êtes sur un téléphone et ne voyez pas les rubriques                         | Touchez le bouton **Menu** en haut à gauche.                                                                                                                                         |
 | Une donnée semble perdue                                                         | Ne paniquez pas : contactez le développeur avant toute restauration ; une restauration peut remplacer des données plus récentes.                                                     |
 
-## 12. Bonnes pratiques
+## 13. Bonnes pratiques
 
 - Changez le mot de passe initial dès la première connexion, et ne le communiquez à personne ; utilisez un mot de passe unique, d’au moins 8 caractères.814417
 - Vérifiez les traductions **FR** et **MG** avant publication : un texte malgache oublié laisse apparaître le français.

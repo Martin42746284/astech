@@ -11,10 +11,11 @@ Le site comprend les pages suivantes :
 - **Accueil** (`/`) : présentation, services et réalisations à la une, témoignages et accès au contact.
 - **Services** (`/services`) : catalogue des services ; chaque carte ouvre la fiche détaillée correspondante.
 - **Réalisations** (`/realisations`) : galerie filtrable par catégorie ; chaque projet ouvre sa fiche.
+- **Galerie** (`/galerie`) : photos et vidéos des chantiers et réalisations, avec visionneuse plein écran.
 - **À propos** (`/a-propos`) : histoire et engagements de l’entreprise.
 - **FAQ** (`/faq`) : questions et réponses.
 - **Contact / Demander un devis** (`/contact`) : coordonnées et formulaire.
-- **Mentions légales** (`/mentions-legales`) : éditeur, coordonnées, informations légales et données personnelles.
+- **Mentions légales** (`/mentions-legales`) : éditeur du site et directeur de la publication.
 
 La navigation principale est disponible dans l’en-tête. Sur téléphone, ouvrir le bouton **Menu** pour afficher les rubriques. Le pied de page contient également les coordonnées, les liens de navigation et les liens sociaux.
 
@@ -79,6 +80,22 @@ Pour ajouter ou modifier une réalisation :
 5. Enregistrer. L’option **Afficher sur l’accueil** détermine si le projet fait partie des réalisations mises en avant.
 
 La suppression d’un projet est définitive. Vérifier le contenu avant de confirmer.
+
+### Galerie
+
+La rubrique **Galerie** publie des photos et des vidéos libres (chantiers, livraisons, équipe, avant/après), indépendamment des réalisations détaillées.
+
+Pour ajouter ou modifier un média :
+
+1. Renseigner le titre en français et, si disponible, en malgache : c’est la légende affichée sous le média.
+2. Indiquer une catégorie facultative pour classer les médias (Chantier, Livraison, Équipe…).
+3. Choisir le **Type** : **Photo** ou **Vidéo**.
+4. Pour une **photo** : sélectionner la photo — elle est redimensionnée (1 600 pixels) et convertie en WebP automatiquement.
+5. Pour une **vidéo** : sélectionner le fichier — il est compressé automatiquement en **MP4**, **30 s maximum** (au-delà, la vidéo est tronquée) et d’environ **2 Mo** ; la **vignette** est capturée automatiquement. La barre d’avancement affiche la durée et les poids avant/après ; le traitement peut prendre une à deux minutes.
+6. Régler l’ordre d’affichage (le plus petit numéro s’affiche en premier) et la visibilité.
+7. Enregistrer.
+
+Les médias visibles alimentent la page **Galerie**, la page d’accueil (les huit derniers) et la page **À propos** (les quatre derniers). Les vidéos ne sont téléchargées par le site que lorsque le visiteur les ouvre dans la visionneuse. La suppression est définitive.
 
 ### Demandes de devis
 

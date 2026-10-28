@@ -14,10 +14,12 @@ import { Route as AProposRouteImport } from './routes/a-propos'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as FaqRouteImport } from './routes/faq'
+import { Route as GalerieRouteImport } from './routes/galerie'
 import { Route as MentionsLegalesRouteImport } from './routes/mentions-legales'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminDevisRouteImport } from './routes/admin.devis'
 import { Route as AdminFaqRouteImport } from './routes/admin.faq'
+import { Route as AdminGalerieRouteImport } from './routes/admin.galerie'
 import { Route as AdminParametresRouteImport } from './routes/admin.parametres'
 import { Route as AdminRealisationsRouteImport } from './routes/admin.realisations'
 import { Route as AdminServicesRouteImport } from './routes/admin.services'
@@ -52,6 +54,11 @@ const FaqRoute = FaqRouteImport.update({
   path: '/faq',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GalerieRoute = GalerieRouteImport.update({
+  id: '/galerie',
+  path: '/galerie',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MentionsLegalesRoute = MentionsLegalesRouteImport.update({
   id: '/mentions-legales',
   path: '/mentions-legales',
@@ -70,6 +77,11 @@ const AdminDevisRoute = AdminDevisRouteImport.update({
 const AdminFaqRoute = AdminFaqRouteImport.update({
   id: '/faq',
   path: '/faq',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminGalerieRoute = AdminGalerieRouteImport.update({
+  id: '/galerie',
+  path: '/galerie',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminParametresRoute = AdminParametresRouteImport.update({
@@ -119,9 +131,11 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRouteWithChildren
   '/contact': typeof ContactRoute
   '/faq': typeof FaqRoute
+  '/galerie': typeof GalerieRoute
   '/mentions-legales': typeof MentionsLegalesRoute
   '/admin/devis': typeof AdminDevisRoute
   '/admin/faq': typeof AdminFaqRoute
+  '/admin/galerie': typeof AdminGalerieRoute
   '/admin/parametres': typeof AdminParametresRoute
   '/admin/realisations': typeof AdminRealisationsRoute
   '/admin/services': typeof AdminServicesRoute
@@ -137,9 +151,11 @@ export interface FileRoutesByTo {
   '/a-propos': typeof AProposRoute
   '/contact': typeof ContactRoute
   '/faq': typeof FaqRoute
+  '/galerie': typeof GalerieRoute
   '/mentions-legales': typeof MentionsLegalesRoute
   '/admin/devis': typeof AdminDevisRoute
   '/admin/faq': typeof AdminFaqRoute
+  '/admin/galerie': typeof AdminGalerieRoute
   '/admin/parametres': typeof AdminParametresRoute
   '/admin/realisations': typeof AdminRealisationsRoute
   '/admin/services': typeof AdminServicesRoute
@@ -157,9 +173,11 @@ export interface FileRoutesById {
   '/admin': typeof AdminRouteWithChildren
   '/contact': typeof ContactRoute
   '/faq': typeof FaqRoute
+  '/galerie': typeof GalerieRoute
   '/mentions-legales': typeof MentionsLegalesRoute
   '/admin/devis': typeof AdminDevisRoute
   '/admin/faq': typeof AdminFaqRoute
+  '/admin/galerie': typeof AdminGalerieRoute
   '/admin/parametres': typeof AdminParametresRoute
   '/admin/realisations': typeof AdminRealisationsRoute
   '/admin/services': typeof AdminServicesRoute
@@ -178,9 +196,11 @@ export interface FileRouteTypes {
     | '/admin'
     | '/contact'
     | '/faq'
+    | '/galerie'
     | '/mentions-legales'
     | '/admin/devis'
     | '/admin/faq'
+    | '/admin/galerie'
     | '/admin/parametres'
     | '/admin/realisations'
     | '/admin/services'
@@ -196,9 +216,11 @@ export interface FileRouteTypes {
     | '/a-propos'
     | '/contact'
     | '/faq'
+    | '/galerie'
     | '/mentions-legales'
     | '/admin/devis'
     | '/admin/faq'
+    | '/admin/galerie'
     | '/admin/parametres'
     | '/admin/realisations'
     | '/admin/services'
@@ -215,9 +237,11 @@ export interface FileRouteTypes {
     | '/admin'
     | '/contact'
     | '/faq'
+    | '/galerie'
     | '/mentions-legales'
     | '/admin/devis'
     | '/admin/faq'
+    | '/admin/galerie'
     | '/admin/parametres'
     | '/admin/realisations'
     | '/admin/services'
@@ -235,6 +259,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   ContactRoute: typeof ContactRoute
   FaqRoute: typeof FaqRoute
+  GalerieRoute: typeof GalerieRoute
   MentionsLegalesRoute: typeof MentionsLegalesRoute
   RealisationsSlugRoute: typeof RealisationsSlugRoute
   ServicesSlugRoute: typeof ServicesSlugRoute
@@ -279,6 +304,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FaqRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/galerie': {
+      id: '/galerie'
+      path: '/galerie'
+      fullPath: '/galerie'
+      preLoaderRoute: typeof GalerieRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/mentions-legales': {
       id: '/mentions-legales'
       path: '/mentions-legales'
@@ -305,6 +337,13 @@ declare module '@tanstack/react-router' {
       path: '/faq'
       fullPath: '/admin/faq'
       preLoaderRoute: typeof AdminFaqRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/galerie': {
+      id: '/admin/galerie'
+      path: '/galerie'
+      fullPath: '/admin/galerie'
+      preLoaderRoute: typeof AdminGalerieRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/parametres': {
@@ -369,6 +408,7 @@ declare module '@tanstack/react-router' {
 interface AdminRouteChildren {
   AdminDevisRoute: typeof AdminDevisRoute
   AdminFaqRoute: typeof AdminFaqRoute
+  AdminGalerieRoute: typeof AdminGalerieRoute
   AdminParametresRoute: typeof AdminParametresRoute
   AdminRealisationsRoute: typeof AdminRealisationsRoute
   AdminServicesRoute: typeof AdminServicesRoute
@@ -379,6 +419,7 @@ interface AdminRouteChildren {
 const AdminRouteChildren: AdminRouteChildren = {
   AdminDevisRoute: AdminDevisRoute,
   AdminFaqRoute: AdminFaqRoute,
+  AdminGalerieRoute: AdminGalerieRoute,
   AdminParametresRoute: AdminParametresRoute,
   AdminRealisationsRoute: AdminRealisationsRoute,
   AdminServicesRoute: AdminServicesRoute,
@@ -394,6 +435,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRouteWithChildren,
   ContactRoute: ContactRoute,
   FaqRoute: FaqRoute,
+  GalerieRoute: GalerieRoute,
   MentionsLegalesRoute: MentionsLegalesRoute,
   RealisationsSlugRoute: RealisationsSlugRoute,
   ServicesSlugRoute: ServicesSlugRoute,

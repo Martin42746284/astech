@@ -12,7 +12,7 @@ export function Logo({ className, light = true }: { className?: string; light?: 
           ASTECH
         </span>
         <span className={cn("block text-[0.6rem]", light ? "text-secondary-foreground/70" : "text-muted-foreground")}>
-          Bureau d'études & Entreprise de construction
+          Entreprise et Bureau d'études ASTECH
         </span>
       </span>
     </span>

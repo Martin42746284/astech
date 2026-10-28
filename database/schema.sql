@@ -55,6 +55,21 @@ CREATE TABLE IF NOT EXISTS testimonials (
   active INTEGER NOT NULL DEFAULT 1
 );
 
+CREATE TABLE IF NOT EXISTS gallery (
+  id BIGSERIAL PRIMARY KEY,
+  title_fr TEXT NOT NULL DEFAULT '',
+  title_mg TEXT NOT NULL DEFAULT '',
+  category TEXT NOT NULL DEFAULT '',
+  image TEXT NOT NULL DEFAULT '',
+  -- 'photo' ou 'video' ; nullable = photo (le formulaire envoie NULL pour un champ vide)
+  type TEXT,
+  -- vidéo compressée (MP4, ~2 Mo max) encodée en data-URL ; NULL pour les photos
+  video TEXT,
+  ord INTEGER NOT NULL DEFAULT 0,
+  active INTEGER NOT NULL DEFAULT 1,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 CREATE TABLE IF NOT EXISTS quotes (
   id BIGSERIAL PRIMARY KEY,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),

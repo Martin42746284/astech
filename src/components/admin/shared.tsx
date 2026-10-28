@@ -8,6 +8,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useAdminRows, useCrudMutate, fileToImage, slugify, type QuoteStatus } from "@/lib/data";
+import {
+  capturePoster,
+  compressVideo,
+  formatBytes,
+  formatDuration,
+  probeVideo,
+  VIDEO_MAX_DURATION,
+} from "@/lib/media";
 import { cn } from "@/lib/utils";
 
 export const TYPE_LABEL: Record<string, string> = {
@@ -25,9 +33,13 @@ export function StatusBadge({ s }: { s: QuoteStatus }) {
 }
 
 export type Field = {
-  name: string; label: string;
-  type?: "text" | "textarea" | "number" | "select" | "image" | "checkbox";
-  options?: { v: string; l: string }[]; full?: boolean; required?: boolean; hint?: string;
+  name: string;
+  label: string;
+  type?: "text" | "textarea" | "number" | "select" | "image" | "video" | "checkbox";
+  options?: { v: string; l: string }[];
+  full?: boolean;
+  required?: boolean | ((row: Partial<Record<string, Scalar>>) => boolean);
+  hint?: string;
 };
 
 type AnyRow = Record<string, Scalar> & { id: number };
@@ -42,7 +54,10 @@ export function CrudPage({ title, table, fields, columns, slugFrom }: {
 
   async function save() {
     if (!edit) return;
-    for (const f of fields) if (f.required && !edit[f.name]) return toast.error(`« ${f.label} » est obligatoire`);
+    for (const f of fields) {
+      const req = typeof f.required === "function" ? f.required(edit) : f.required;
+      if (req && !edit[f.name]) return toast.error(`« ${f.label} » est obligatoire`);
+    }
     const data: Record<string, Scalar> = {};
     fields.forEach((f) => (data[f.name] = (edit[f.name] ?? (f.type === "checkbox" ? 0 : null)) as Scalar));
     if (slugFrom) data.slug = (edit.slug as string) || slugify(String(edit[slugFrom] ?? "")) + (edit.id ? "" : "-" + Date.now().toString(36));
@@ -108,7 +123,16 @@ export function CrudPage({ title, table, fields, columns, slugFrom }: {
           <DialogHeader><DialogTitle>{edit?.id ? "Modifier" : "Ajouter"}</DialogTitle></DialogHeader>
           {edit && (
             <div className="grid gap-4 sm:grid-cols-2">
-              {fields.map((f) => <FieldInput key={f.name} f={f} value={edit[f.name]} onChange={(v) => setEdit({ ...edit, [f.name]: v })} />)}
+              {fields.map((f) => (
+                <FieldInput
+                  key={f.name}
+                  f={f}
+                  value={edit[f.name]}
+                  row={edit}
+                  onChange={(v) => setEdit({ ...edit, [f.name]: v })}
+                  onPatch={(patch) => setEdit({ ...edit, ...patch })}
+                />
+              ))}
             </div>
           )}
           <div className="flex justify-end gap-2">
@@ -121,26 +145,155 @@ export function CrudPage({ title, table, fields, columns, slugFrom }: {
   );
 }
 
-function FieldInput({ f, value, onChange }: { f: Field; value: Scalar | undefined; onChange: (v: Scalar) => void }) {
-  const full = f.full || f.type === "textarea" || f.type === "image";
+function FieldInput({
+  f,
+  value,
+  row,
+  onChange,
+  onPatch,
+}: {
+  f: Field;
+  value: Scalar | undefined;
+  row?: Partial<Record<string, Scalar>>;
+  onChange: (v: Scalar) => void;
+  onPatch?: ((patch: Record<string, Scalar>) => void) | undefined;
+}) {
+  const full = f.full || f.type === "textarea" || f.type === "image" || f.type === "video";
+  const required = typeof f.required === "function" ? f.required(row ?? {}) : f.required;
   const v = value == null ? "" : String(value);
   return (
     <div className={cn(full && "sm:col-span-2")}>
-      {f.type !== "checkbox" && <Label>{f.label}{f.required && " *"}</Label>}
-      {f.type === "textarea" ? <Textarea rows={4} value={v} onChange={(e) => onChange(e.target.value)} />
-        : f.type === "select" ? (
-          <select value={v} onChange={(e) => onChange(e.target.value)} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm">
-            <option value="">—</option>{f.options?.map((o) => <option key={o.v} value={o.v}>{o.l}</option>)}
-          </select>)
-        : f.type === "checkbox" ? (
-          <label className="flex items-center gap-2 pt-6 text-sm"><input type="checkbox" checked={!!value} onChange={(e) => onChange(e.target.checked ? 1 : 0)} className="accent-primary" />{f.label}</label>)
-        : f.type === "image" ? (
-          <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
-            {v && <img src={v} alt="" className="h-20 w-28 rounded object-cover" />}
-            <Input type="file" accept="image/*" onChange={async (e) => { const file = e.target.files?.[0]; if (file) onChange(await fileToImage(file)); }} />
-          </div>)
-        : <Input type={f.type === "number" ? "number" : "text"} value={v} onChange={(e) => onChange(f.type === "number" ? Number(e.target.value) : e.target.value)} />}
+      {f.type !== "checkbox" && (
+        <Label>
+          {f.label}
+          {required && " *"}
+        </Label>
+      )}
+      {f.type === "textarea" ? (
+        <Textarea rows={4} value={v} onChange={(e) => onChange(e.target.value)} />
+      ) : f.type === "select" ? (
+        <select
+          value={v}
+          onChange={(e) => onChange(e.target.value)}
+          className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm"
+        >
+          <option value="">—</option>
+          {f.options?.map((o) => (
+            <option key={o.v} value={o.v}>
+              {o.l}
+            </option>
+          ))}
+        </select>
+      ) : f.type === "checkbox" ? (
+        <label className="flex items-center gap-2 pt-6 text-sm">
+          <input
+            type="checkbox"
+            checked={!!value}
+            onChange={(e) => onChange(e.target.checked ? 1 : 0)}
+            className="accent-primary"
+          />
+          {f.label}
+        </label>
+      ) : f.type === "image" ? (
+        <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+          {v && <img src={v} alt="" className="h-20 w-28 rounded object-cover" />}
+          <Input
+            type="file"
+            accept="image/*"
+            onChange={async (e) => {
+              const file = e.target.files?.[0];
+              if (file) onChange(await fileToImage(file));
+            }}
+          />
+        </div>
+      ) : f.type === "video" ? (
+        <VideoInput value={v} onChange={onChange} onPatch={onPatch} />
+      ) : (
+        <Input
+          type={f.type === "number" ? "number" : "text"}
+          value={v}
+          onChange={(e) => onChange(f.type === "number" ? Number(e.target.value) : e.target.value)}
+        />
+      )}
       {f.hint && <p className="mt-1 text-xs text-muted-foreground">{f.hint}</p>}
+    </div>
+  );
+}
+
+/** Champ « vidéo » : compresse en MP4 (30 s max, ~2 Mo) et capture une vignette. */
+function VideoInput({
+  value,
+  onChange,
+  onPatch,
+}: {
+  value: string;
+  onChange: (v: Scalar) => void;
+  onPatch?: ((patch: Record<string, Scalar>) => void) | undefined;
+}) {
+  const [busy, setBusy] = useState(false);
+  const [pct, setPct] = useState(0);
+  const [label, setLabel] = useState("");
+  const [info, setInfo] = useState<string | null>(null);
+
+  async function pick(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = ""; // permet de re-sélectionner le même fichier
+    if (!file) return;
+    if (!file.type.startsWith("video/"))
+      return toast.error("Le fichier sélectionné n'est pas une vidéo.");
+    setBusy(true);
+    setPct(0);
+    setInfo(null);
+    setLabel("Lecture de la vidéo…");
+    try {
+      const meta = await probeVideo(file);
+      if (meta.duration > VIDEO_MAX_DURATION) {
+        setLabel(`Durée ${formatDuration(meta.duration)} → tronquée à ${VIDEO_MAX_DURATION} s…`);
+      }
+      setLabel("Chargement du moteur de compression…");
+      const r = await compressVideo(file, (ratio) => setPct(Math.round(ratio * 100)));
+      setLabel("Capture de la vignette…");
+      const poster = await capturePoster(file);
+      onChange(r.dataUrl);
+      onPatch?.({ image: poster, type: "video" });
+      setInfo(
+        `${formatBytes(r.originalBytes)} → ${formatBytes(r.bytes)} · MP4 · ${formatDuration(r.duration)}`,
+      );
+      toast.success("Vidéo compressée");
+    } catch (err) {
+      toast.error("Compression impossible : " + (err as Error).message);
+    } finally {
+      setBusy(false);
+      setLabel("");
+      setPct(0);
+    }
+  }
+
+  return (
+    <div className="flex flex-col gap-2">
+      {value && (
+        <video src={value} controls preload="metadata" className="max-h-40 w-full rounded border" />
+      )}
+      <Input type="file" accept="video/*" onChange={pick} disabled={busy} />
+      {busy && (
+        <div className="flex flex-col gap-1">
+          <div className="h-2 w-full overflow-hidden rounded bg-muted">
+            <div
+              className="h-full rounded bg-primary transition-all"
+              style={{ width: `${pct}%` }}
+            />
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {label}
+            {pct > 0 && pct < 100 ? ` — ${pct} %` : ""}
+          </p>
+        </div>
+      )}
+      {info && <p className="text-xs font-semibold text-success">✓ {info}</p>}
+      <p className="text-xs text-muted-foreground">
+        MP4 compressé automatiquement : {VIDEO_MAX_DURATION} s maximum, ~2 Mo après compression. La
+        vignette est capturée automatiquement.
+      </p>
     </div>
   );
 }

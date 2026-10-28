@@ -69,6 +69,28 @@ export const listTestimonials = createServerFn({ method: "GET" }).handler(async 
   return rows as Row[];
 });
 
+export const listGallery = createServerFn({ method: "GET" }).handler(async () => {
+  const { neonQuery } = await db();
+  // La colonne "video" (jusqu'à ~2 Mo par ligne) n'est pas chargée ici : elle est
+  // récupérée à la demande via getGalleryVideo, uniquement quand le visiteur
+  // ouvre une vidéo dans la visionneuse.
+  const { rows } = await neonQuery(
+    "select id, title_fr, title_mg, category, image, ord, active, type, created_at from gallery where active = 1 order by ord, id limit 300",
+  );
+  return rows as Row[];
+});
+
+export const getGalleryVideo = createServerFn({ method: "GET" })
+  .inputValidator((data: { id: number }) => data)
+  .handler(async ({ data }) => {
+    const { neonQuery } = await db();
+    const { rows } = await neonQuery(
+      "select video from gallery where id = $1 and active = 1 limit 1",
+      [data.id],
+    );
+    return { video: String(rows[0]?.video ?? "") };
+  });
+
 // ---------- Public writes ----------
 
 const PROJECT_TYPES = ["maison", "fondation", "rendu-3d", "chantier", "permis", "etude", "autre"];
@@ -175,6 +197,10 @@ const CRUD_TABLES: Record<string, { columns: string[]; orderBy: string }> = {
   },
   faqs: { columns: ["q_fr", "q_mg", "a_fr", "a_mg", "ord"], orderBy: "ord, id" },
   testimonials: { columns: ["name", "role", "text_fr", "text_mg", "rating", "active"], orderBy: "id" },
+  gallery: {
+    columns: ["title_fr", "title_mg", "category", "image", "type", "video", "ord", "active"],
+    orderBy: "ord, id",
+  },
   quotes: { columns: [], orderBy: "id desc" }, // read-only here; writes via dedicated fns
 };
 
@@ -194,7 +220,11 @@ export const adminListQuotes = createServerFn({ method: "GET" }).handler(async (
   const { requireAdmin } = await auth();
   await requireAdmin();
   const { neonQuery } = await db();
-  const { rows } = await neonQuery("select * from quotes order by id desc limit 500");
+  // created_at est converti en texte (heure de Madagascar) : le driver Neon
+  // renvoie un objet Date, qui ne peut pas être rendu directement dans le JSX.
+  const { rows } = await neonQuery(
+    "select id, to_char(created_at at time zone 'Indian/Antananarivo', 'DD/MM/YYYY HH24:MI') as created_at, status, name, phone, email, project_type, location, budget, surface, message, attachment, attachment_name, consent, notes from quotes order by id desc limit 500",
+  );
   return rows as Row[];
 });
 
@@ -313,7 +343,10 @@ export const getDashboardStats = createServerFn({ method: "GET" }).handler(async
       { query: "select count(*) as n from quotes where status = 'new'" },
       { query: "select to_char(created_at at time zone 'UTC', 'YYYY-MM-DD') as d, count(*) as n from visits where created_at >= now() - interval '7 days' group by 1 order by 1" },
       { query: "select project_type, count(*) as n from quotes group by project_type order by n desc limit 10" },
-      { query: "select id, created_at, status, name, project_type from quotes order by id desc limit 5" },
+      {
+        query:
+          "select id, to_char(created_at at time zone 'Indian/Antananarivo', 'DD/MM/YYYY HH24:MI') as created_at, status, name, project_type from quotes order by id desc limit 5",
+      },
       { query: "select id, title_fr, image from projects order by created_at desc, id desc limit 4" },
     ],
     [],

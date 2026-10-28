@@ -9,7 +9,15 @@ import { SiteLayout, CtaBanner, trackWhatsapp } from "@/components/site/SiteLayo
 import { ServiceCard, ProjectCard, SectionHead } from "@/components/site/Cards";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n";
-import { useServices, useProjects, useTestimonials, useSettings, waLink } from "@/lib/data";
+import {
+  useServices,
+  useProjects,
+  useTestimonials,
+  useGallery,
+  useSettings,
+  waLink,
+} from "@/lib/data";
+import { GalleryGrid } from "@/components/site/GalleryGrid";
 
 const HERO_IMAGES = [hero, chantier, fondation, rendu3d] as const;
 
@@ -90,7 +98,7 @@ function HeroSlideshow() {
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "ASTECH – Bureau d'études & construction à Madagascar" },
+      { title: "Entreprise et Bureau d'études ASTECH" },
       { name: "description", content: "Études, plans 3D, permis de construire, suivi de chantier et construction à Antananarivo et partout à Madagascar." },
       { property: "og:title", content: "ASTECH – Votre projet de construction entre de bonnes mains" },
       { property: "og:description", content: "Bureau d'études et entreprise de construction à Madagascar." },
@@ -105,6 +113,7 @@ function Index() {
   const services = useServices();
   const projects = useProjects(true);
   const testi = useTestimonials();
+  const gallery = useGallery();
 
   return (
     <SiteLayout>
@@ -151,6 +160,18 @@ function Index() {
           </div>
         </div>
       </section>
+
+      {!!gallery.data?.length && (
+        <section className="mx-auto max-w-7xl px-4 py-16">
+          <SectionHead
+            title={t("ourGallery")}
+            sub={t("gallerySub")}
+            link="/galerie"
+            linkLabel={t("allGallery")}
+          />
+          <GalleryGrid items={gallery.data.slice(0, 8)} columns={4} />
+        </section>
+      )}
 
       {!!testi.data?.length && (
         <section className="mx-auto max-w-7xl px-4 py-16">

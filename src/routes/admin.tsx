@@ -1,6 +1,6 @@
 import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
-import { LayoutDashboard, Wrench, Images, Inbox, HelpCircle, MessageSquareQuote, Settings, LogOut, ExternalLink, Menu, X } from "lucide-react";
+import { LayoutDashboard, Wrench, Images, Frame, Inbox, HelpCircle, MessageSquareQuote, Settings, LogOut, ExternalLink, Menu, X } from "lucide-react";
 import { Logo } from "@/components/site/Logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,6 +25,7 @@ const NAV = [
   { to: "/admin", l: "Tableau de bord", i: LayoutDashboard, exact: true },
   { to: "/admin/services", l: "Services", i: Wrench },
   { to: "/admin/realisations", l: "Réalisations", i: Images },
+  { to: "/admin/galerie", l: "Galerie", i: Frame },
   { to: "/admin/devis", l: "Demandes de devis", i: Inbox },
   { to: "/admin/faq", l: "FAQ", i: HelpCircle },
   { to: "/admin/temoignages", l: "Témoignages", i: MessageSquareQuote },

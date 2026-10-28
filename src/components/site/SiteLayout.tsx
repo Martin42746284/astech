@@ -93,6 +93,7 @@ const NAV: { to: string; key: DictKey }[] = [
   { to: "/", key: "home" },
   { to: "/services", key: "services" },
   { to: "/realisations", key: "projects" },
+  { to: "/galerie", key: "gallery" },
   { to: "/a-propos", key: "about" },
   { to: "/faq", key: "faq" },
   { to: "/contact", key: "contact" },

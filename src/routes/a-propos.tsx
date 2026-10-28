@@ -3,8 +3,9 @@ import { ShieldCheck, Clock, BadgeDollarSign, Smile } from "lucide-react";
 import rendu3d from "@/assets/rendu3d.jpg";
 import { SiteLayout, PageBanner, CtaBanner } from "@/components/site/SiteLayout";
 import { SectionHead } from "@/components/site/Cards";
+import { GalleryGrid } from "@/components/site/GalleryGrid";
 import { useI18n } from "@/lib/i18n";
-import { useSettings } from "@/lib/data";
+import { useSettings, useGallery } from "@/lib/data";
 
 export const Route = createFileRoute("/a-propos")({
   head: () => ({
@@ -21,6 +22,7 @@ export const Route = createFileRoute("/a-propos")({
 function Page() {
   const { t, lang } = useI18n();
   const s = useSettings();
+  const gallery = useGallery();
   const items = [
     { i: ShieldCheck, l: t("quality") },
     { i: Clock, l: t("deadlines") },
@@ -45,6 +47,17 @@ function Page() {
           </div>
         </div>
       </section>
+      {!!gallery.data?.length && (
+        <section className="mx-auto max-w-7xl px-4 py-16">
+          <SectionHead
+            title={t("ourGallery")}
+            sub={t("gallerySub")}
+            link="/galerie"
+            linkLabel={t("allGallery")}
+          />
+          <GalleryGrid items={gallery.data.slice(0, 4)} columns={4} />
+        </section>
+      )}
       <CtaBanner />
     </SiteLayout>
   );
