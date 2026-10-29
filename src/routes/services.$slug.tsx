@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { CheckCircle2 } from "lucide-react";
 import { SiteLayout, PageBanner } from "@/components/site/SiteLayout";
+import { QueryState } from "@/components/site/QueryState";
 import { ServiceIcon } from "@/components/site/ServiceIcon";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n";
@@ -25,7 +26,14 @@ function Page() {
   const s = q.data;
   if (q.isSuccess && !s)
     return <SiteLayout><div className="py-32 text-center"><h1 className="text-2xl font-bold">{t("notFound")}</h1><Link to="/services" className="text-accent">{t("ourServices")}</Link></div></SiteLayout>;
-  if (!s) return <SiteLayout><div className="py-32" /></SiteLayout>;
+  if (!s)
+    return (
+      <SiteLayout>
+        <QueryState isPending={q.isPending} isError={q.isError}>
+          <div className="py-32" />
+        </QueryState>
+      </SiteLayout>
+    );
   const list = (f: string) => pick(s, f).split("\n").filter(Boolean);
   return (
     <SiteLayout>

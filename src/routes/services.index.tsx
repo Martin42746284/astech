@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { SiteLayout, PageBanner, CtaBanner } from "@/components/site/SiteLayout";
 import { ServiceCard, SectionHead } from "@/components/site/Cards";
+import { QueryState } from "@/components/site/QueryState";
 import { useI18n } from "@/lib/i18n";
 import { useServices } from "@/lib/data";
 
@@ -24,7 +25,11 @@ function Page() {
       <PageBanner title={t("ourServices")} crumb={t("services")} />
       <section className="mx-auto max-w-7xl px-4 py-16">
         <SectionHead title={t("servicesSub")} sub={t("servicesIntro")} />
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{q.data?.map((s) => <ServiceCard key={s.id} s={s} />)}</div>
+        <QueryState isPending={q.isPending} isError={q.isError} isEmpty={!q.data?.length}>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {q.data?.map((s) => <ServiceCard key={s.id} s={s} />)}
+          </div>
+        </QueryState>
       </section>
       <CtaBanner />
     </SiteLayout>

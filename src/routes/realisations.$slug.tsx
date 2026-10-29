@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { MapPin, Calendar, X } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
+import { QueryState } from "@/components/site/QueryState";
 import { Button } from "@/components/ui/button";
 import { useI18n, type DictKey } from "@/lib/i18n";
 import { useProject } from "@/lib/data";
@@ -25,7 +26,14 @@ function Page() {
   const q = useProject(slug);
   const p = q.data;
   if (q.isSuccess && !p) return <SiteLayout><div className="py-32 text-center text-2xl font-bold">{t("notFound")}</div></SiteLayout>;
-  if (!p) return <SiteLayout><div className="py-32" /></SiteLayout>;
+  if (!p)
+    return (
+      <SiteLayout>
+        <QueryState isPending={q.isPending} isError={q.isError}>
+          <div className="py-32" />
+        </QueryState>
+      </SiteLayout>
+    );
   return (
     <SiteLayout>
       <section className="mx-auto max-w-5xl px-4 py-12">

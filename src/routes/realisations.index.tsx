@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { SiteLayout, PageBanner, CtaBanner } from "@/components/site/SiteLayout";
 import { ProjectCard, SectionHead } from "@/components/site/Cards";
+import { QueryState } from "@/components/site/QueryState";
 import { useI18n, type DictKey } from "@/lib/i18n";
 import { useProjects, CATEGORIES } from "@/lib/data";
 import { cn } from "@/lib/utils";
@@ -36,7 +37,11 @@ function Page() {
             </button>
           ))}
         </div>
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{list.map((p) => <ProjectCard key={p.id} p={p} />)}</div>
+        <QueryState isPending={q.isPending} isError={q.isError} isEmpty={!list.length}>
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {list.map((p) => <ProjectCard key={p.id} p={p} />)}
+          </div>
+        </QueryState>
       </section>
       <CtaBanner />
     </SiteLayout>

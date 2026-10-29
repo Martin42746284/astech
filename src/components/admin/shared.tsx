@@ -1,12 +1,18 @@
-import { useState } from "react";
-import { Pencil, Trash2, Plus } from "lucide-react";
+import { useRef, useState } from "react";
+import { Pencil, Trash2, Plus, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 type Scalar = string | number | null;
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useAdminRows, useCrudMutate, fileToImage, slugify, type QuoteStatus } from "@/lib/data";
 import {
   capturePoster,
@@ -38,19 +44,48 @@ export type Field = {
   type?: "text" | "textarea" | "number" | "select" | "image" | "video" | "checkbox";
   options?: { v: string; l: string }[];
   full?: boolean;
+  hidden?: boolean;
   required?: boolean | ((row: Partial<Record<string, Scalar>>) => boolean);
   hint?: string;
 };
 
 type AnyRow = Record<string, Scalar> & { id: number };
 
-export function CrudPage({ title, table, fields, columns, slugFrom }: {
+export function CrudPage({
+  title,
+  table,
+  fields,
+  columns,
+  slugFrom,
+  onAddMultiplePhotos,
+  hideAddButton,
+}: {
   title: string; table: string; orderBy: string; fields: Field[];
-  columns: { label: string; render: (r: AnyRow) => React.ReactNode }[]; slugFrom?: string;
+  columns: { label: string; render: (r: AnyRow) => React.ReactNode }[];
+  slugFrom?: string;
+  onAddMultiplePhotos?: (files: File[]) => Promise<number>;
+  hideAddButton?: boolean;
 }) {
   const rows = useAdminRows<AnyRow>(table).data ?? [];
   const { save: saveRow, del: delRow } = useCrudMutate(table);
   const [edit, setEdit] = useState<Partial<AnyRow> | null>(null);
+  const [uploadingPhotos, setUploadingPhotos] = useState(false);
+  const photosInput = useRef<HTMLInputElement>(null);
+
+  async function addMultiplePhotos(files: FileList | null) {
+    if (!files?.length || !onAddMultiplePhotos) return;
+    const selected = Array.from(files);
+    setUploadingPhotos(true);
+    try {
+      const count = await onAddMultiplePhotos(selected);
+      toast.success(`${count} photo${count > 1 ? "s" : ""} ajoutée${count > 1 ? "s" : ""}`);
+    } catch (e) {
+      toast.error("Erreur d'import : " + (e instanceof Error ? e.message : String(e)));
+    } finally {
+      setUploadingPhotos(false);
+      if (photosInput.current) photosInput.current.value = "";
+    }
+  }
 
   async function save() {
     if (!edit) return;
@@ -69,17 +104,62 @@ export function CrudPage({ title, table, fields, columns, slugFrom }: {
       toast.error("Erreur : " + (e as Error).message);
     }
   }
-  async function del(id: number) {
-    if (!confirm("Supprimer définitivement cet élément ?")) return;
-    await delRow(id);
-    toast.success("Supprimé");
+  async function confirmDelete(id: number) {
+    try {
+      await delRow(id);
+      toast.success("Suppression effectuée", {
+        description: "L’élément a été supprimé avec succès.",
+      });
+    } catch (e) {
+      toast.error("Suppression impossible", {
+        description: e instanceof Error ? e.message : String(e),
+      });
+    }
+  }
+
+  function del(id: number) {
+    toast.warning("Confirmer la suppression", {
+      description: "Cette action est définitive.",
+      action: {
+        label: "Supprimer",
+        onClick: () => void confirmDelete(id),
+      },
+      cancel: {
+        label: "Annuler",
+        onClick: () => undefined,
+      },
+      duration: 10_000,
+    });
   }
 
   return (
     <div>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-extrabold text-secondary">{title}</h1>
-        <Button variant="cta" onClick={() => setEdit({})}><Plus /> Ajouter</Button>
+        <div className="flex flex-wrap gap-2">
+          {onAddMultiplePhotos && (
+            <>
+              <input
+                ref={photosInput}
+                type="file"
+                accept="image/*"
+                multiple
+                className="hidden"
+                onChange={(e) => void addMultiplePhotos(e.target.files)}
+              />
+              <Button
+                variant="outline"
+                disabled={uploadingPhotos}
+                onClick={() => photosInput.current?.click()}
+              >
+                {uploadingPhotos ? "Import en cours…" : "Importer plusieurs photos"}
+              </Button>
+            </>
+          )}
+          {!hideAddButton && (
+            <Button variant="cta" onClick={() => setEdit({})}><Plus /> Ajouter</Button>
+          )}
+        </div>
       </div>
       <div className="space-y-3 lg:hidden">
         {rows.map((r) => (
@@ -123,22 +203,45 @@ export function CrudPage({ title, table, fields, columns, slugFrom }: {
           <DialogHeader><DialogTitle>{edit?.id ? "Modifier" : "Ajouter"}</DialogTitle></DialogHeader>
           {edit && (
             <div className="grid gap-4 sm:grid-cols-2">
-              {fields.map((f) => (
-                <FieldInput
-                  key={f.name}
-                  f={f}
-                  value={edit[f.name]}
-                  row={edit}
-                  onChange={(v) => setEdit({ ...edit, [f.name]: v })}
-                  onPatch={(patch) => setEdit({ ...edit, ...patch })}
-                />
-              ))}
+              {fields
+                .filter((f) => !f.hidden)
+                .map((f) => (
+                  <FieldInput
+                    key={f.name}
+                    f={f}
+                    value={edit[f.name]}
+                    row={edit}
+                    onChange={(v) =>
+                      setEdit((current) => (current ? { ...current, [f.name]: v } : current))
+                    }
+                    onPatch={(patch) =>
+                      setEdit((current) => (current ? { ...current, ...patch } : current))
+                    }
+                  />
+                ))}
             </div>
           )}
           <div className="flex justify-end gap-2">
             <Button variant="outline" onClick={() => setEdit(null)}>Annuler</Button>
             <Button variant="cta" onClick={save}>Enregistrer</Button>
           </div>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={uploadingPhotos} onOpenChange={() => undefined}>
+        <DialogContent
+          showCloseButton={false}
+          onEscapeKeyDown={(event) => event.preventDefault()}
+          onPointerDownOutside={(event) => event.preventDefault()}
+          onInteractOutside={(event) => event.preventDefault()}
+          className="max-w-sm text-center"
+        >
+          <DialogHeader className="items-center gap-3">
+            <Loader2 aria-hidden="true" className="h-9 w-9 animate-spin text-primary" />
+            <DialogTitle>Importation en cours</DialogTitle>
+            <DialogDescription>
+              Veuillez patienter. Les autres actions sont temporairement désactivées.
+            </DialogDescription>
+          </DialogHeader>
         </DialogContent>
       </Dialog>
     </div>
@@ -202,7 +305,10 @@ function FieldInput({
             accept="image/*"
             onChange={async (e) => {
               const file = e.target.files?.[0];
-              if (file) onChange(await fileToImage(file));
+              if (file) {
+                onChange(await fileToImage(file));
+                onPatch?.({ type: "photo", video: null });
+              }
             }}
           />
         </div>

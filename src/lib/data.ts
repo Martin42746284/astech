@@ -40,9 +40,12 @@ export type QuoteStatus = "new" | "in_progress" | "done" | "archived";
 export const CATEGORIES = ["maison", "fondation", "rendu-3d", "chantier"] as const;
 export const PROJECT_TYPES = ["maison", "fondation", "rendu-3d", "chantier", "permis", "etude", "autre"] as const;
 
+export function useSettingsQuery() {
+  return useQuery({ queryKey: ["settings"], queryFn: () => getSettings(), staleTime: 30_000 });
+}
+
 export function useSettings() {
-  const q = useQuery({ queryKey: ["settings"], queryFn: () => getSettings(), staleTime: 30_000 });
-  return q.data ?? {};
+  return useSettingsQuery().data ?? {};
 }
 
 export function useServices() {

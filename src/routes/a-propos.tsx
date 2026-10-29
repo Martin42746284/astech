@@ -3,9 +3,10 @@ import { ShieldCheck, Clock, BadgeDollarSign, Smile } from "lucide-react";
 import rendu3d from "@/assets/rendu3d.jpg";
 import { SiteLayout, PageBanner, CtaBanner } from "@/components/site/SiteLayout";
 import { SectionHead } from "@/components/site/Cards";
+import { QueryState } from "@/components/site/QueryState";
 import { GalleryGrid } from "@/components/site/GalleryGrid";
 import { useI18n } from "@/lib/i18n";
-import { useSettings, useGallery } from "@/lib/data";
+import { useSettingsQuery, useGallery } from "@/lib/data";
 
 export const Route = createFileRoute("/a-propos")({
   head: () => ({
@@ -21,7 +22,8 @@ export const Route = createFileRoute("/a-propos")({
 
 function Page() {
   const { t, lang } = useI18n();
-  const s = useSettings();
+  const settings = useSettingsQuery();
+  const s = settings.data ?? {};
   const gallery = useGallery();
   const items = [
     { i: ShieldCheck, l: t("quality") },
@@ -36,7 +38,11 @@ function Page() {
         <img src={rendu3d} alt="Rendu 3D ASTECH" loading="lazy" className="rounded-xl shadow-card" />
         <div>
           <SectionHead title={t("ourStory")} />
-          <p className="whitespace-pre-line leading-relaxed text-muted-foreground">{lang === "mg" ? s.about_mg : s.about_fr}</p>
+          <QueryState isPending={settings.isPending} isError={settings.isError}>
+            <p className="whitespace-pre-line leading-relaxed text-muted-foreground">
+              {lang === "mg" ? s.about_mg : s.about_fr}
+            </p>
+          </QueryState>
         </div>
       </section>
       <section className="mx-auto max-w-7xl px-4">
@@ -47,7 +53,7 @@ function Page() {
           </div>
         </div>
       </section>
-      {!!gallery.data?.length && (
+      {(gallery.isPending || gallery.isError || !!gallery.data?.length) && (
         <section className="mx-auto max-w-7xl px-4 py-16">
           <SectionHead
             title={t("ourGallery")}
@@ -55,7 +61,9 @@ function Page() {
             link="/galerie"
             linkLabel={t("allGallery")}
           />
-          <GalleryGrid items={gallery.data.slice(0, 4)} columns={4} />
+          <QueryState isPending={gallery.isPending} isError={gallery.isError}>
+            <GalleryGrid items={(gallery.data ?? []).slice(0, 4)} columns={4} />
+          </QueryState>
         </section>
       )}
       <CtaBanner />

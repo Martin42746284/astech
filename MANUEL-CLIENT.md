@@ -22,7 +22,7 @@ Une barre à gauche liste les rubriques, dans cet ordre :
 | **Tableau de bord**   | Vue d’ensemble de l’activité                        |
 | **Services**          | Les prestations affichées sur le site               |
 | **Réalisations**      | Les projets de la galerie et de l’accueil           |
-| **Galerie**           | Les photos et vidéos (Galerie, accueil, À propos)   |
+| **Galerie**           | Les photos (Galerie, accueil, À propos)             |
 | **Demandes de devis** | Les demandes reçues via le formulaire               |
 | **FAQ**               | Les questions et réponses                           |
 | **Témoignages**       | Les avis clients affichés                           |
@@ -83,24 +83,20 @@ Les messages **« Titre (FR) » est obligatoire**, **« Catégorie » est obliga
 
 Les projets les plus récents apparaissent en premier dans la liste comme sur le site.
 
-## 5. Ajouter des photos et vidéos à la galerie
+## 5. Importer des photos dans la galerie
 
-Rubrique **Galerie** — les médias visibles apparaissent sur la page **Galerie** du site, sur l’**accueil** (les huit derniers) et sur la page **À propos** (les quatre derniers).
+Rubrique **Galerie** — les photos importées apparaissent sur la page **Galerie** du site, sur l’**accueil** (les huit dernières) et sur la page **À propos** (les quatre dernières). L’import de vidéos est temporairement désactivé ; les vidéos déjà publiées restent visibles.
 
-1. Cliquez sur **Ajouter** (ou sur le crayon d’un média).
-2. Renseignez :
-   - **Titre (FR)** (obligatoire) et **Titre (MG)** : c’est la légende affichée sous le média ;
-   - **Catégorie** : facultative, pour classer les médias (ex. _Chantier_, _Livraison_, _Équipe_) ;
-   - **Type** : **Photo** (image fixe) ou **Vidéo** (clip) ;
-   - **Photo** (obligatoire) : elle est **redimensionnée et optimisée automatiquement** ; pour une vidéo, c’est la **vignette** (image miniature affichée dans la grille), **capturée automatiquement** — vous pouvez la remplacer par une image de votre choix ;
-   - **Vidéo** (obligatoire uniquement quand le Type est _Vidéo_) : choisissez un fichier — il est **compressé automatiquement en MP4**, **30 s maximum** (au-delà, la vidéo est tronquée à 30 s) et d’environ **2 Mo** une fois compressée. La barre d’avancement, la durée et le poids avant/après s’affichent pendant le traitement, qui peut prendre **une à deux minutes** ;
-   - **Ordre d'affichage** : le plus petit numéro s’affiche en premier ;
-   - **Visible sur le site** : décochez pour retirer temporairement un média sans le supprimer.
-3. Cliquez sur **Enregistrer**.
+1. Cliquez sur **Importer plusieurs photos**.
+2. Dans la fenêtre de sélection, choisissez une ou plusieurs images. Sur ordinateur, maintenez **Ctrl** (Windows) ou **⌘ Commande** (Mac) pour sélectionner plusieurs fichiers ; sur téléphone, sélectionnez plusieurs photos si l’application de fichiers le permet.
+3. Confirmez la sélection. Chaque photo est redimensionnée (1 600 pixels maximum) et convertie en WebP, puis ajoutée séparément à la galerie. Les photos importées sont publiées automatiquement.
+4. Pendant l’import, une fenêtre **« Importation en cours »** bloque les actions dans le site. Attendez sa fermeture avant de naviguer ou de commencer une autre opération. Ne fermez pas et ne rechargez pas l’onglet pendant ce traitement.
 
-Côté visiteur, la page **Galerie** présente une grille de vignettes : les vidéos affichent un **bouton de lecture** ; le clic ouvre la **visionneuse** plein écran — flèches **←** / **→** pour changer de média (aussi au clavier), croix ou touche **Échap** pour fermer. La vidéo se lance dans la visionneuse : elle n’est téléchargée qu’au moment où le visiteur l’ouvre, le reste du site n’est pas ralenti.
+Un message confirme le nombre de photos ajoutées. Si un fichier échoue, le message précise le fichier concerné et combien de photos ont déjà été ajoutées ; relancez alors l’import uniquement pour les photos restantes.
 
-Les messages **« Titre (FR) » est obligatoire**, **« Photo » est obligatoire** et **« Vidéo » est obligatoire** indiquent ce qui manque. La suppression est **définitive** : préférez la case **Visible sur le site**.
+Les photos apparaissent dans la grille de la page **Galerie**. Le visiteur peut cliquer sur une photo pour l’ouvrir dans la visionneuse plein écran, puis utiliser les flèches **←** / **→** pour changer de photo ou la croix / touche **Échap** pour fermer. Pendant le chargement de la galerie, un indicateur s’affiche ; si aucune photo n’a encore été publiée, un message indique que la galerie sera bientôt disponible.
+
+Pour supprimer un média, cliquez sur l’icône de corbeille de sa ligne ou de sa carte. Un toast de confirmation propose **Annuler** ou **Supprimer** ; la suppression est définitive. Le toast reste affiché 10 secondes.
 
 ## 6. Traiter les demandes de devis
 
@@ -207,8 +203,8 @@ Points de vigilance :
 | Masquer sans supprimer                | **Services / Témoignages**  | Décocher **Visible sur le site**                        |
 | Publier un chantier                   | **Réalisations**            | **Ajouter** → titre, catégorie, photo → **Enregistrer** |
 | Mettre un projet en avant             | **Réalisations**            | Cocher **Afficher sur l'accueil**                       |
-| Publier une photo ou une vidéo        | **Galerie**                 | **Ajouter** → titre + type + média → **Enregistrer**    |
-| Retirer un média temporairement       | **Galerie**                 | Décocher **Visible sur le site**                        |
+| Publier une ou plusieurs photos       | **Galerie**                 | **Importer plusieurs photos** → sélectionner → attendre la fin |
+| Supprimer un média                    | **Galerie**                 | Corbeille → **Supprimer** dans le toast de confirmation |
 | Suivre une demande                    | **Demandes de devis**       | **Voir** → choisir le statut, ajouter des notes         |
 | Répondre à un droit à l’effacement    | **Demandes de devis**       | Filtrer, puis **Supprimer**                             |
 | Changer un tarif affiché / un horaire | **Paramètres → Entreprise** | Modifier → **Enregistrer les modifications**            |
@@ -233,8 +229,9 @@ Points de vigilance :
 
 - Changez le mot de passe initial dès la première connexion, et ne le communiquez à personne ; utilisez un mot de passe unique, d’au moins 8 caractères.814417
 - Vérifiez les traductions **FR** et **MG** avant publication : un texte malgache oublié laisse apparaître le français.
-- Complétez systématiquement le **titre français** : c’est le seul champ obligatoire qui déclenche aussi l’adresse de la page.
-- Préférez **Visible sur le site** décoché plutôt qu’une suppression, sauf pour les demandes de devis (droit à l’effacement).
+- Pour une réalisation, complétez le **titre français** : il est obligatoire et sert aussi à créer l’adresse de la page.
+- Pendant un import de photos, attendez la fin du traitement avant de naviguer ou de fermer l’onglet.
+- La suppression d’une photo de la galerie est définitive ; vérifiez le média avant de confirmer.
 - Ne placez ni dans les descriptions ni dans les notes internes de données personnelles qui ne sont pas nécessaires.
 - Traitez les demandes **Nouvelle** dans la journée : elles portent la pastille rouge du tableau de bord.
 - Faites une sauvegarde (onglet **Sauvegardes**) avant toute modification importante : ajout en masse, restauration, changement de mot de passe.

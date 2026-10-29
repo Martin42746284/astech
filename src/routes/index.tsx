@@ -7,6 +7,7 @@ import fondation from "@/assets/fondation.jpg";
 import rendu3d from "@/assets/rendu3d.jpg";
 import { SiteLayout, CtaBanner, trackWhatsapp } from "@/components/site/SiteLayout";
 import { ServiceCard, ProjectCard, SectionHead } from "@/components/site/Cards";
+import { QueryState } from "@/components/site/QueryState";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n";
 import {
@@ -147,21 +148,33 @@ function Index() {
 
       <section className="mx-auto max-w-7xl px-4 py-16">
         <SectionHead title={t("ourServices")} sub={t("servicesSub")} link="/services" linkLabel={t("allServices")} />
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {services.data?.map((x) => <ServiceCard key={x.id} s={x} />)}
-        </div>
+        <QueryState
+          isPending={services.isPending}
+          isError={services.isError}
+          isEmpty={!services.data?.length}
+        >
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {services.data?.map((x) => <ServiceCard key={x.id} s={x} />)}
+          </div>
+        </QueryState>
       </section>
 
       <section className="bg-muted py-16">
         <div className="mx-auto max-w-7xl px-4">
           <SectionHead title={t("ourProjects")} sub={t("projectsSub")} link="/realisations" linkLabel={t("allProjects")} />
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {projects.data?.map((p) => <ProjectCard key={p.id} p={p} />)}
-          </div>
+          <QueryState
+            isPending={projects.isPending}
+            isError={projects.isError}
+            isEmpty={!projects.data?.length}
+          >
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+              {projects.data?.map((p) => <ProjectCard key={p.id} p={p} />)}
+            </div>
+          </QueryState>
         </div>
       </section>
 
-      {!!gallery.data?.length && (
+      {(gallery.isPending || gallery.isError || !!gallery.data?.length) && (
         <section className="mx-auto max-w-7xl px-4 py-16">
           <SectionHead
             title={t("ourGallery")}
@@ -169,22 +182,26 @@ function Index() {
             link="/galerie"
             linkLabel={t("allGallery")}
           />
-          <GalleryGrid items={gallery.data.slice(0, 8)} columns={4} />
+          <QueryState isPending={gallery.isPending} isError={gallery.isError}>
+            <GalleryGrid items={(gallery.data ?? []).slice(0, 8)} columns={4} />
+          </QueryState>
         </section>
       )}
 
-      {!!testi.data?.length && (
+      {(testi.isPending || testi.isError || !!testi.data?.length) && (
         <section className="mx-auto max-w-7xl px-4 py-16">
           <SectionHead title={t("testimonials")} />
-          <div className="grid gap-5 md:grid-cols-3">
-            {testi.data.map((x) => (
-              <figure key={x.id} className="rounded-lg border bg-card p-6 shadow-card">
-                <div className="flex gap-1 text-primary-glow">{Array.from({ length: x.rating }).map((_, i) => <Star key={i} className="h-4 w-4 fill-current" />)}</div>
-                <blockquote className="mt-3 text-sm">« {pick(x, "text")} »</blockquote>
-                <figcaption className="mt-4 text-sm font-bold text-secondary">{x.name} <span className="font-normal text-muted-foreground">· {x.role}</span></figcaption>
-              </figure>
-            ))}
-          </div>
+          <QueryState isPending={testi.isPending} isError={testi.isError} isEmpty={!testi.data?.length}>
+            <div className="grid gap-5 md:grid-cols-3">
+              {testi.data?.map((x) => (
+                <figure key={x.id} className="rounded-lg border bg-card p-6 shadow-card">
+                  <div className="flex gap-1 text-primary-glow">{Array.from({ length: x.rating }).map((_, i) => <Star key={i} className="h-4 w-4 fill-current" />)}</div>
+                  <blockquote className="mt-3 text-sm">« {pick(x, "text")} »</blockquote>
+                  <figcaption className="mt-4 text-sm font-bold text-secondary">{x.name} <span className="font-normal text-muted-foreground">· {x.role}</span></figcaption>
+                </figure>
+              ))}
+            </div>
+          </QueryState>
         </section>
       )}
 

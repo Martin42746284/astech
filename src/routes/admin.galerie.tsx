@@ -1,14 +1,38 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { CrudPage } from "@/components/admin/shared";
+import { fileToImage, useCrudMutate } from "@/lib/data";
 
 export const Route = createFileRoute("/admin/galerie")({ component: Page });
 
 function Page() {
+  const { save } = useCrudMutate("gallery");
+
+  async function addMultiplePhotos(files: File[]) {
+    let added = 0;
+    for (const file of files) {
+      try {
+        const image = await fileToImage(file);
+        await save({ image, type: "photo" });
+        added += 1;
+      } catch (error) {
+        const detail = error instanceof Error ? error.message : String(error);
+        throw new Error(
+          added
+            ? `${added} photo(s) ajoutée(s) avant l'échec sur « ${file.name} » : ${detail}`
+            : `Échec sur « ${file.name} » : ${detail}`,
+        );
+      }
+    }
+    return added;
+  }
+
   return (
     <CrudPage
       title="Galerie"
       table="gallery"
       orderBy="ord, id"
+      onAddMultiplePhotos={addMultiplePhotos}
+      hideAddButton
       columns={[
         {
           label: "Média",
@@ -16,48 +40,24 @@ function Page() {
             <img src={String(r.image)} alt="" className="h-12 w-16 rounded object-cover" />
           ),
         },
-        { label: "Titre", render: (r) => <b>{String(r.title_fr)}</b> },
         {
           label: "Type",
           render: (r) => (String(r.type ?? "") === "video" ? "Vidéo" : "Photo"),
         },
-        { label: "Catégorie", render: (r) => String(r.category ?? "") || "—" },
-        { label: "Ordre", render: (r) => String(r.ord ?? 0) },
-        { label: "Visible", render: (r) => (r.active ? "Oui" : "Non") },
       ]}
       fields={[
-        { name: "title_fr", label: "Titre (FR)", required: true },
-        { name: "title_mg", label: "Titre (MG)" },
-        {
-          name: "category",
-          label: "Catégorie",
-          hint: "Facultatif — sert à classer les médias (ex. Chantier, Livraison, Équipe).",
-        },
         {
           name: "type",
           label: "Type",
-          type: "select",
-          options: [
-            { v: "photo", l: "Photo" },
-            { v: "video", l: "Vidéo" },
-          ],
-          hint: "Photo = image fixe ; Vidéo = clip compressé en MP4 (30 s max).",
+          hidden: true,
         },
         {
           name: "image",
           label: "Photo",
           type: "image",
           required: true,
-          hint: "Optimisée automatiquement. Pour une vidéo, c'est la vignette (capturée automatiquement, remplaçable).",
+          hint: "Choisissez une photo.",
         },
-        {
-          name: "video",
-          label: "Vidéo",
-          type: "video",
-          required: (row) => String(row.type ?? "") === "video",
-        },
-        { name: "ord", label: "Ordre d'affichage", type: "number" },
-        { name: "active", label: "Visible sur le site", type: "checkbox" },
       ]}
     />
   );
